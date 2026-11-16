@@ -31,6 +31,7 @@
                 />
               </svg>
             </div>
+
             <div
               class="flex flex-col items-center sm:items-start lg:items-center order-2 sm:order-1 lg:order-2 min-w-0"
             >
@@ -73,6 +74,7 @@
                 />
               </svg>
             </div>
+
             <div
               class="order-2 flex min-w-0 flex-col items-center sm:order-1 sm:items-start lg:order-2 lg:items-center"
             >
@@ -97,6 +99,7 @@
                 class="w-5 h-5 sm:w-6 sm:h-6 object-contain"
               />
             </div>
+
             <div
               class="flex flex-col items-center sm:items-start lg:items-center order-2 sm:order-1 lg:order-2 min-w-0"
             >
@@ -133,6 +136,7 @@
               <span>سرمه‌؛ دنیای زیبایی، به وسعت سلیقه شما</span>
               <span>💄</span>
             </h3>
+
             <p
               class="text-[10px] xl:text-xs text-gray-600 leading-relaxed transition-all duration-300"
               :class="isExpanded ? '' : 'line-clamp-2 lg:line-clamp-none'"
@@ -141,7 +145,9 @@
               رو با هم کشف کنیم! ✨ از محصولات آرایشی و بهداشتی تا عطر و
               ادکلن...
             </p>
+
             <button
+              v-if="hasSeoPage"
               @click="isExpanded = !isExpanded"
               class="mt-3 text-xs font-bold text-[#4B3073] hover:bg-[#eae3f8] transition py-2 px-4 rounded-xl w-full text-center border border-[#4B3073]/20 cursor-pointer"
             >
@@ -151,20 +157,15 @@
         </div>
       </div>
 
-      <!-- بخش محتوای تکمیلی API (با عرض کامل) -->
       <transition name="expand">
         <div
-          v-if="isExpanded"
+          v-if="hasSeoPage && isExpanded"
           class="mt-6 pt-6 border-t border-dashed border-[#4B3073]/30 w-full"
         >
           <div
             class="text-gray-700 leading-7 font-medium text-xs sm:text-sm text-justify"
-          >
-            <p v-if="apiContent" v-html="apiContent"></p>
-            <p v-else class="text-gray-400">
-              در حال بارگذاری اطلاعات تکمیلی...
-            </p>
-          </div>
+            v-html="apiContent"
+          ></div>
         </div>
       </transition>
     </div>
@@ -172,34 +173,75 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { computed, ref, watch } from "vue";
 import { useApi } from "~/composables/api/useApi";
 
 const { getBase } = useApi();
+const route = useRoute();
+
 const isExpanded = ref(false);
 
-// متن پیش‌فرض برای زمانی که API هنوز داده‌ای نداده یا خالی است
 const defaultText =
   "سرمه، با تمرکز بر کیفیت و اصالت کالا، مجموعه‌ای از بهترین برندهای آرایشی و بهداشتی جهانی را گردآوری کرده است. هدف ما ارائه تجربه‌ای فراتر از یک خرید ساده و ایجاد حس اطمینان در انتخاب محصولات مراقبتی است. تمامی محصولات با ضمانت اصالت و سلامت فیزیکی به سراسر کشور ارسال می‌شوند.";
 
-const apiContent = ref(defaultText);
+const { data: baseResponse } = await useAsyncData("footer-base-settings", () =>
+  getBase(),
+);
 
-onMounted(async () => {
-  try {
-    const response = await getBase();
-    // طبق تصویر ارسالی شما: data.settings.site
-    // فرض بر این است که فیلد توضیحات در API وجود دارد (مثلاً description یا معرفی)
-    // اگر نام فیلد در آبجکت site متفاوت است، آن را اینجا اصلاح کنید
-    const siteSettings = response?.data?.settings?.site;
-
-    if (siteSettings && siteSettings.description) {
-      apiContent.value = siteSettings.description;
-    }
-  } catch (error) {
-    console.error("خطا در دریافت داده‌های فوتر:", error);
-    // در صورت خطا، متن پیش‌فرض (defaultText) که در بالا تعریف شده باقی می‌ماند
-  }
+const seoSettings = computed(() => {
+  return baseResponse.value?.data?.settings?.seo ?? {};
 });
+
+const seoField = computed(() => {
+  const path = route.path;
+
+  if (path === "/") {
+    return "home_seo";
+  }
+
+  if (path === "/contact-us" || path.startsWith("/contact-us/")) {
+    return "contact_seo";
+  }
+
+  if (path === "/about-us" || path.startsWith("/about-us/")) {
+    return "about_seo";
+  }
+
+  if (path === "/blogs" || path.startsWith("/blogs/")) {
+    return "blogs_seo";
+  }
+
+  if (path === "/products" || path.startsWith("/products/")) {
+    return "products_seo";
+  }
+
+  return null;
+});
+
+const hasSeoPage = computed(() => seoField.value !== null);
+
+const apiContent = computed(() => {
+  const field = seoField.value;
+
+  if (!field) {
+    return "";
+  }
+
+  const content = seoSettings.value?.[field];
+
+  if (typeof content === "string" && content.trim()) {
+    return content;
+  }
+
+  return defaultText;
+});
+
+watch(
+  () => route.path,
+  () => {
+    isExpanded.value = false;
+  },
+);
 </script>
 
 <style scoped>
