@@ -4,9 +4,10 @@
   <button
     v-if="!user"
     @click="showLoginModal()"
-    class="border-2 border-gray-300 flex items-center gap-2 p-2 rounded-xl transition"
+    class="border-2 border-gray-300 flex items-center gap-2 px-4 h-[48px] rounded-xl transition hover:bg-gray-50"
   >
     <span>ورود و عضویت</span>
+
     <img src="/icons/user.svg" />
   </button>
 
@@ -14,7 +15,7 @@
   <div v-else class="relative" ref="dropdownRef">
     <button
       @click="toggleDropdown"
-      class="flex items-center cursor-pointer gap-2 py-2 px-4 rounded-xl border-2 border-gray-300 transition"
+      class="flex items-center cursor-pointer gap-2 px-4 h-[48px] rounded-xl border-2 border-gray-300 transition hover:bg-gray-50"
     >
       <span class="max-md:hidden font-medium text-xs">{{
         user.full_name || user.mobile

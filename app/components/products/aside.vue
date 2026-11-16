@@ -1,4 +1,3 @@
-<!-- app/components/products/aside.vue -->
 <template>
   <aside class="lg:w-[25%] w-full flex flex-col lg:bg-secondary-fade gap-6">
     <div class="flex justify-between items-center mb-4">

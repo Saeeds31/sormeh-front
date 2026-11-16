@@ -15,7 +15,40 @@
       />
 
       <div class="flex-1">
-        <ProductsSort class="hidden lg:block" v-model="sortBy" />
+        <ProductsSort
+          class="hidden lg:block"
+          v-model="sortBy"
+          :total="paginationData?.total ?? 0"
+        />
+
+        <div
+          v-if="activeFilters.length"
+          class="flex flex-wrap items-center justify-start gap-3 my-3"
+        >
+          <!-- دکمه حذف همه فیلترها (سمت چپِ چیپ‌ها) -->
+          <button
+            @click="clearAllFilters"
+            class="flex items-center gap-2 text-red-500 border-2 !border-red-300 px-3 py-1.5 rounded-md text-xs hover:bg-red-50"
+          >
+            حذف همه فیلترها
+            <Trash class="w-4 h-4" />
+          </button>
+
+          <!-- چیپ‌های فیلتر (سمت راست) -->
+          <div class="flex flex-wrap gap-2">
+            <div
+              v-for="filter in activeFilters"
+              :key="filter.key"
+              class="flex items-center gap-2 border-2 !border-gray-200 bg-white px-3 py-1.5 rounded-md text-xs text-gray-500"
+            >
+              {{ filter.label }}
+              <X
+                class="w-3 h-3 cursor-pointer hover:text-red-500"
+                @click="removeFilter(filter)"
+              />
+            </div>
+          </div>
+        </div>
         <ProductsFilterMobile
           class="lg:hidden"
           v-model:selectedCategories="filters.categories"
@@ -77,12 +110,50 @@ import { useRoute, useRouter } from "vue-router";
 import { useApi } from "@/composables/api/useApi";
 import { usePageLoading } from "@/composables/usePageLoading";
 import ProductCardHorizontal from "~/components/shared/ProductCardHorizontal.vue";
-
+import { X } from "lucide-vue-next";
 const { getProducts, getBase } = useApi();
 const { fetchWishlist } = useWishlist();
 const { loadPageWithBase } = usePageLoading();
 const route = useRoute();
 const router = useRouter();
+
+const activeFilters = computed(() => {
+  const tags = [];
+
+  if (filters.value.search)
+    tags.push({ label: `جستجو: ${filters.value.search}`, key: "search" });
+  if (filters.value.inStock) tags.push({ label: "فقط موجود", key: "inStock" });
+  if (filters.value.categories.length > 0)
+    tags.push({
+      label: `دسته بندی (${filters.value.categories.length})`,
+      key: "categories",
+    });
+  if (filters.value.priceRange[0] || filters.value.priceRange[1]) {
+    tags.push({
+      label: `قیمت: ${filters.value.priceRange[0]} تا ${filters.value.priceRange[1]}`,
+      key: "price",
+    });
+  }
+
+  return tags;
+});
+
+// 3. متد حذف فیلتر
+async function removeFilter(filter) {
+  if (filter.key === "search") filters.value.search = "";
+  if (filter.key === "inStock") filters.value.inStock = false;
+  if (filter.key === "categories") filters.value.categories = [];
+  if (filter.key === "price") filters.value.priceRange = [0, 2000000];
+
+  await applyFilters();
+}
+function clearAllFilters() {
+  filters.value.search = "";
+  filters.value.inStock = false;
+  filters.value.categories = [];
+  filters.value.priceRange = [0, 2000000];
+  applyFilters();
+}
 
 const filters = ref({
   search: route.query.search || "",

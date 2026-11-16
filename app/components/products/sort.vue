@@ -1,16 +1,21 @@
 <template>
   <div class="border-b flex gap-4 pb-4 items-center">
     <div class="font-bold pb-3">مرتب سازی :</div>
-    <ul class="flex gap-2 flex-wrap">
-      <li
-        v-for="option in sortOptions"
-        :key="option.label"
-        :class="{ active: selectedLabel === option.label }"
-        @click="selectSort(option)"
-      >
-        {{ option.label }}
-      </li>
-    </ul>
+    <div class="flex w-full justify-between items-center">
+      <ul class="flex gap-2 flex-wrap">
+        <li
+          v-for="option in sortOptions"
+          :key="option.label"
+          :class="{ active: selectedLabel === option.label }"
+          @click="selectSort(option)"
+        >
+          {{ option.label }}
+        </li>
+      </ul>
+      <div class="text-sm text-gray-500 order-1 lg:order-none">
+        ( {{ total.toLocaleString("fa-IR") }} کالا )
+      </div>
+    </div>
   </div>
 </template>
 
@@ -22,6 +27,7 @@ const props = defineProps({
     type: String,
     default: "newest", // مقدار پیش‌فرض API
   },
+  total: { type: Number, default: 0 },
 });
 
 const emit = defineEmits(["update:modelValue"]);

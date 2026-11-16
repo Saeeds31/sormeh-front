@@ -354,9 +354,9 @@ watch(isMenuOpen, (open) => {
     ]"
   >
     <!-- در موبایل صفحه دسته‌بندی مخفی؛ در دسکتاپ همچنان نمایش داده می‌شود -->
-    <headerTopBar
+    <!-- <headerTopBar
       :class="{ 'hidden md:block': productMode || isCategoryPage }"
-    />
+    /> -->
 
     <!-- دسکتاپ (همیشه در دسکتاپ کامل نمایش داده می‌شود) -->
     <div class="hidden md:block">
@@ -367,14 +367,21 @@ watch(isMenuOpen, (open) => {
         </div>
 
         <div class="flex items-center gap-2">
-          <HeaderBtnProfile />
-
           <button
             type="button"
-            class="relative flex items-center gap-2 rounded-xl border py-1 px-4 border-gray-300 cursor-pointer bg-secondary"
+            class="relative flex items-center gap-2 rounded-xl border px-4 h-[48px] border-gray-300 cursor-pointer bg-[#587330] transition-all"
+            @click="navigateTo('/panel/sormeh')"
+          >
+            <img src="/icons/coin.png" class="w-5 h-5 object-contain" />
+            <span class="text-white text-sm font-bold">سرمه کلاب</span>
+          </button>
+          <HeaderBtnProfile />
+          <button
+            type="button"
+            class="relative flex items-center gap-2 rounded-xl border px-4 h-[48px] border-gray-300 cursor-pointer bg-secondary transition-all"
             @click="openCartSidebar"
           >
-            <span class="text-white">سبد خرید</span>
+            <span class="text-white text-sm font-bold">سبد خرید</span>
             <img src="/icons/bag.svg" class="" />
             <span v-if="cartItemsCount > 0" class="cart-badge">
               {{ cartItemsCount }}

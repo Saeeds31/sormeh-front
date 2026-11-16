@@ -3,44 +3,21 @@
     <!-- کارت اصلی کلاب -->
     <div class="bg-gray-100 rounded-xl shadow-xs overflow-hidden">
       <div
-        class="relative bg-[#9374C9] p-3 sm:p-4 flex items-center justify-between overflow-hidden"
+        class="relative bg-[#9374C9] p-3 sm:p-4 flex items-center justify-between"
       >
         <!-- کپسول زرد نمایش تعداد سکه‌ها -->
         <div
-          class="z-10 bg-[#fde047] text-amber-950 px-4 py-2 rounded-full font-bold text-xs sm:text-sm flex items-center gap-2 shadow-sm"
+          class="z-10 bg-[#FFD857] text-amber-950 px-4 py-2 rounded-full font-bold text-xs sm:text-sm flex items-center gap-2 shadow-sm"
         >
-          <div
-            class="w-5 h-5 rounded-full bg-amber-500 border border-amber-600 flex items-center justify-center text-[10px] text-white"
-          >
-            🪙
-          </div>
           <span>تعداد سکه شما:</span>
           <span class="font-extrabold text-base">{{
             formatNumber(userClubData.totalCoins)
           }}</span>
+
+          <SharedAppImage src="/icons/coin.png" alt="لوگو" img-class="" />
         </div>
-        <div class="flex items-center gap-2 z-10">
-          <div class="relative flex items-center">
-            <!-- سکه نقره و برنز پس‌زمینه -->
-            <div
-              class="w-10 h-10 rounded-full bg-slate-300 border-2 border-white/40 shadow-inner flex items-center justify-center -ml-3"
-            >
-              <span class="text-[10px] font-bold text-gray-600">سرمه</span>
-            </div>
-            <!-- سکه طلایی اصلی -->
-            <div
-              class="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-300 to-amber-600 border-2 border-amber-200 shadow-md flex items-center justify-center text-center p-1 z-10"
-            >
-              <span class="text-xs font-black text-amber-900 leading-tight"
-                >سرمه<br />کلاب</span
-              >
-            </div>
-            <div
-              class="w-9 h-9 rounded-full bg-amber-800 border-2 border-white/30 shadow-inner flex items-center justify-center -mr-3"
-            >
-              <span class="text-[9px] font-bold text-amber-200">برنز</span>
-            </div>
-          </div>
+        <div class="absolute items-center left-2 top-2 gap-2 z-10">
+          <SharedAppImage src="/images/coins.png" alt="لوگو" img-class="" />
         </div>
       </div>
 
@@ -95,11 +72,12 @@
                 <span class="text-xs sm:text-sm font-bold">سطح کاربری شما</span>
               </div>
               <div class="flex items-center justify-end gap-2">
-                <span
-                  class="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-800 to-amber-600 border border-amber-700 flex items-center justify-center text-[10px] text-amber-200"
-                >
-                  🥉
-                </span>
+                <SharedAppImage
+                  src="/icons/coinB.svg"
+                  alt="لوگو"
+                  img-class="w-6"
+                />
+
                 <span class="text-sm font-bold text-gray-900">
                   {{ userClubData.currentTier }}
                 </span>
@@ -146,29 +124,35 @@
                   <!-- ردیف نماد -->
                   <tr class="hover:bg-gray-50/60">
                     <td
-                      class="py-3 px-3 text-right pr-6 text-gray-500 font-bold"
+                      class="py-3 px-3 text-right pr-6 text-gray-500 font-bold align-middle"
                     >
                       نماد
                     </td>
-                    <td class="py-3 px-3">
-                      <div
-                        class="w-7 h-7 mx-auto rounded-full bg-gradient-to-tr from-amber-800 to-amber-600 border border-amber-700 shadow-xs flex items-center justify-center text-xs"
-                      >
-                        🥉
+                    <td class="py-3 px-3 text-center align-middle">
+                      <div class="flex items-center justify-center">
+                        <SharedAppImage
+                          src="/icons/coinB.svg"
+                          alt="لوگو برنز"
+                          img-class="w-6 h-6 object-contain"
+                        />
                       </div>
                     </td>
-                    <td class="py-3 px-3">
-                      <div
-                        class="w-7 h-7 mx-auto rounded-full bg-gradient-to-tr from-yellow-500 to-amber-400 border border-yellow-300 shadow-xs flex items-center justify-center text-xs"
-                      >
-                        🥇
+                    <td class="py-3 px-3 text-center align-middle">
+                      <div class="flex items-center justify-center">
+                        <SharedAppImage
+                          src="/icons/coin.png"
+                          alt="لوگو گلد"
+                          img-class="w-7 h-7 object-contain"
+                        />
                       </div>
                     </td>
-                    <td class="py-3 px-3">
-                      <div
-                        class="w-7 h-7 mx-auto rounded-full bg-gradient-to-tr from-slate-400 to-gray-200 border border-slate-300 shadow-xs flex items-center justify-center text-xs"
-                      >
-                        🥈
+                    <td class="py-3 px-3 text-center align-middle">
+                      <div class="flex items-center justify-center">
+                        <SharedAppImage
+                          src="/icons/coinN.svg"
+                          alt="لوگو پلاتینیوم"
+                          img-class="w-6 h-6 object-contain"
+                        />
                       </div>
                     </td>
                   </tr>

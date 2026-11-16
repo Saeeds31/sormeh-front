@@ -35,47 +35,41 @@ defineProps({
       />
 
       <div
-        class="absolute inset-0 z-10 flex flex-col justify-between p-3.5 sm:p-4"
+        class="absolute inset-0 z-10 text-white flex flex-col items-center justify-center p-3.5 sm:p-4 space-y-2.5"
       >
-        <div
-          class="flex flex-col flex-1 justify-center text-white space-y-2 pt-4"
+        <h3
+          class="text-base sm:text-lg font-bold tracking-tight line-clamp-1 drop-shadow-sm"
         >
-          <h3
-            class="text-sm sm:text-base font-bold tracking-tight line-clamp-1 drop-shadow-sm"
-          >
-            {{ title }}
-          </h3>
-          <p
-            class="text-xs sm:text-sm text-white font-light opacity-95 line-clamp-1 drop-shadow-sm"
-          >
-            {{ subtitle }}
-          </p>
-        </div>
+          {{ title }}
+        </h3>
+        <p
+          class="text-xs sm:text-sm font-light opacity-95 line-clamp-1 drop-shadow-sm"
+        >
+          {{ subtitle }}
+        </p>
 
-        <div class="flex justify-end p-2">
-          <NuxtLink
-            :to="instagramLink"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center gap-1.5 bg-white text-gray-800 hover:text-[#3F2356] font-medium text-xs px-3 py-1.5 rounded-lg shadow-sm active:scale-95 transition-all duration-200 group"
+        <NuxtLink
+          :to="instagramLink"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 bg-white text-gray-800 hover:text-[#3F2356] font-medium text-xs px-3 py-1.5 rounded-lg shadow-sm active:scale-95 transition-all duration-200 group mt-4"
+        >
+          <span>{{ buttonText }}</span>
+          <span
+            class="w-4 h-4 rounded-sm bg-purple-100 flex items-center justify-center text-gray-500 group-hover:bg-[#EAE2F3] group-hover:text-[#3F2356] transition-colors"
           >
-            <span>{{ buttonText }}</span>
-            <span
-              class="w-4 h-4 rounded-sm bg-purple-100 flex items-center justify-center text-gray-500 group-hover:bg-[#EAE2F3] group-hover:text-[#3F2356] transition-colors"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-2.5 h-2.5 stroke-current fill-none transform rotate-180"
+              viewBox="0 0 24 24"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-2.5 h-2.5 stroke-current fill-none transform rotate-180"
-                viewBox="0 0 24 24"
-                stroke-width="2.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </span>
-          </NuxtLink>
-        </div>
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </span>
+        </NuxtLink>
       </div>
     </div>
 

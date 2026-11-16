@@ -5,7 +5,6 @@
     dir="rtl"
     class="fixed z-40 flex items-center justify-between md:hidden right-[max(16px,env(safe-area-inset-right))] left-[max(16px,env(safe-area-inset-left))] bottom-[max(12px,env(safe-area-inset-bottom))] gap-1"
   >
-    <!-- ۴ آیتم اصلی سمت راست درون یک گروه -->
     <div
       class="flex flex-1 items-center text-[#a3a0a5] justify-around min-h-[70px] rounded-full border border-gray-200 bg-white px-2 shadow-[0_4px_18px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.05)]"
     >
@@ -21,7 +20,6 @@
           class="flex h-[25px] w-[25px] items-center justify-center"
           aria-hidden="true"
         >
-          <!-- صفحه اصلی -->
           <svg
             v-if="item.icon === 'home'"
             viewBox="0 0 24 24"
@@ -33,7 +31,6 @@
             />
           </svg>
 
-          <!-- فروشگاه -->
           <svg
             v-else-if="item.icon === 'store'"
             viewBox="0 0 24 24"
@@ -52,7 +49,6 @@
             <path d="M9 21v-6h6v6" />
           </svg>
 
-          <!-- سرمه کلاب -->
           <span
             v-else-if="item.icon === 'sormeh-club'"
             class="flex h-[23px] w-[23px] items-center justify-center"
@@ -64,7 +60,6 @@
             />
           </span>
 
-          <!-- پروفایل -->
           <svg
             v-else-if="item.icon === 'profile'"
             viewBox="0 0 24 24"
@@ -87,7 +82,6 @@
       </NuxtLink>
     </div>
 
-    <!-- دکمه دسته‌بندی با پس‌زمینه و rounded کاملاً مجزا -->
     <NuxtLink
       v-if="categoryItem"
       :to="categoryItem.to"
@@ -131,7 +125,12 @@ const route = useRoute();
 const items = [
   { label: "خانه", to: "/", icon: "home", match: ["/"] },
   { label: "فروشگاه", to: "/products", icon: "store", match: ["/shop"] },
-  { label: "باشگاه", to: "/club", icon: "sormeh-club", match: ["/club"] },
+  {
+    label: "باشگاه",
+    to: "/panel/sormeh",
+    icon: "sormeh-club",
+    match: ["/panel/sormeh"],
+  },
   { label: "پروفایل", to: "/panel", icon: "profile", match: ["/panel"] },
   {
     label: "دسته‌بندی",

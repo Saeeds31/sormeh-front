@@ -137,7 +137,7 @@ watch(showZoom, (newVal) => {
           <img
             :src="$getImageUrl(image)"
             alt="تصویر محصول"
-            class="w-full h-full object-fit cursor-zoom-in transition-transform duration-300 hover:scale-102"
+            class="w-full h-full object-cover cursor-zoom-in transition-transform duration-300 hover:scale-102"
             @click="openZoom(index)"
           />
           <button

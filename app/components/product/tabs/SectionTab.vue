@@ -167,15 +167,12 @@ const submitComment = () => {
       </button>
     </div>
 
-    <!-- محتوای تب‌ها -->
     <div
-      class="bg-white md:w-[80%] md:relative md:-top-16 mx-auto border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm"
+      class="bg-white md:w-[75%] md:relative md:-top-16 mx-auto border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm"
     >
       <div class="tabs-content">
-        <!-- در دسکتاپ طبق روال قبل با transition، در موبایل پشت سر هم برای اسکرول پیوسته -->
         <div class="hidden md:block">
           <transition name="fade" mode="out-in">
-            <!-- توضیحات دسکتاپ -->
             <div v-if="activeTab === 'text'" key="text" class="tab-panel">
               <h3
                 class="text-xl font-bold text-gray-900 mb-2 border-r-4 border-[#3F2356] pr-3 leading-none"
@@ -185,7 +182,6 @@ const submitComment = () => {
               <productTabsInformation :description="props.description" />
             </div>
 
-            <!-- نظرات دسکتاپ -->
             <div
               v-else-if="activeTab === 'comment'"
               key="comment"
@@ -203,7 +199,6 @@ const submitComment = () => {
               />
             </div>
 
-            <!-- ویژگی‌ها دسکتاپ -->
             <div
               v-else-if="activeTab === 'specifications'"
               key="specifications"
@@ -236,9 +231,7 @@ const submitComment = () => {
           </transition>
         </div>
 
-        <!-- حالت موبایل: هر ۴ بخش پشت سر هم و اسکرول‌پذیر -->
         <div class="md:hidden flex flex-col gap-8">
-          <!-- بخش ۱: توضیحات -->
           <div id="mob-section-text" class="scroll-section">
             <h3 class="text-base font-bold text-gray-800 text-right">
               توضیحات
@@ -246,7 +239,6 @@ const submitComment = () => {
             <productTabsInformation :description="props.description" />
           </div>
 
-          <!-- بخش ۲: ویژگی‌ها -->
           <div
             v-if="props.specifications && props.specifications.length"
             id="mob-section-specifications"
@@ -277,7 +269,6 @@ const submitComment = () => {
             </ul>
           </div>
 
-          <!-- بخش ۳: نظرات -->
           <div
             id="mob-section-comment"
             class="scroll-section pt-4 border-t border-gray-100"
@@ -290,7 +281,6 @@ const submitComment = () => {
             />
           </div>
 
-          <!-- بخش ۴: محصولات مرتبط -->
           <div
             id="mob-section-related"
             class="scroll-section pt-4 border-t border-gray-100"
@@ -388,7 +378,6 @@ const submitComment = () => {
       </div>
     </div>
 
-    <!-- دسکتاپ: هدر و اسلایدر اصلی پروژه؛ کارت‌ها از HomeOfferSlider می‌آیند -->
     <section
       v-if="props.similarProducts.length"
       class="hidden md:block container mx-auto mt-12"
@@ -406,7 +395,6 @@ const submitComment = () => {
         />
       </div>
 
-      <!-- حفظ کامپوننت اصلی: کارت‌های عمودی دسکتاپ در خود این کامپوننت هستند -->
       <HomeSlidersHomeOfferSlider
         ref="desktopOfferSlider"
         :products="props.similarProducts"
