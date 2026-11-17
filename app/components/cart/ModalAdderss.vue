@@ -1026,7 +1026,7 @@ async function saveAddress() {
               <!-- کد پستی -->
               <div class="flex flex-col gap-1.5">
                 <label for="postal" class="font-medium text-xs text-gray-700">
-                  کد پستی <span class="text-red-500">*</span>
+                  کد پستی  
                 </label>
                 <input
                   id="postal"
@@ -1471,10 +1471,7 @@ const validatePhone = () => {
 };
 
 const validatePostalCode = () => {
-  if (!postal_code.value.trim()) {
-    errors.value.postal_code = "کد پستی الزامی است";
-    return false;
-  }
+ 
   const postalRegex = /^\d{10}$/;
   if (!postalRegex.test(postal_code.value)) {
     errors.value.postal_code = "کد پستی باید ۱۰ رقم باشد";
@@ -1594,7 +1591,6 @@ async function saveAddress() {
   const isFirstNameValid = validateFirstName();
   const isLastNameValid = validateLastName();
   const isPhoneValid = validatePhone();
-  const isPostalValid = validatePostalCode();
   const isAddressValid = validateAddressLine();
 
   if (
@@ -1603,7 +1599,6 @@ async function saveAddress() {
     !isFirstNameValid ||
     !isLastNameValid ||
     !isPhoneValid ||
-    !isPostalValid ||
     !isAddressValid
   ) {
     // در موبایل اگر خطای استان یا شهر وجود داشت، کاربر را برگردان

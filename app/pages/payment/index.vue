@@ -284,12 +284,14 @@
             </div>
 
             <!-- بنر زرد پاداش سکه -->
-            <div
+            <div v-if="expectedCoins > 0"
               class="bg-[#fff9e6] border border-[#fef08a] rounded-xl px-3 py-2.5 flex items-center justify-between text-sm text-amber-900">
               <span class="text-base">
                 <Coin class="w-10" />
               </span>
-              <span class="font-medium">با ثبت این سفارش، ۲۹۹ عدد سکه به شما تعلق می‌گیرد!</span>
+              <span class="font-medium">
+                با ثبت این سفارش، {{ expectedCoins.toLocaleString("fa-IR") }} عدد سکه به شما تعلق می‌گیرد!
+              </span>
               <span class="text-base">
                 <CoinL class="w-10" />
               </span>
@@ -396,7 +398,9 @@ const fetchCheckoutSummary = async () => {
 const club = computed(() => checkoutSummary.value?.club ?? null);
 const clubDiscount = computed(() => checkoutSummary.value?.summary?.club_discount ?? 0);
 const clubDiscountPercent = computed(() => checkoutSummary.value?.summary?.club_discount_percent ?? 0);
-
+const expectedCoins = computed(() => {
+  return checkoutSummary.value?.summary?.expected_coins ?? 0;
+});
 const clubLevelLabel = computed(() => {
   const level = club.value?.level;
   return { bronze: 'برنز', gold: 'گلد', platinum: 'پلاتینیوم' }[level] ?? level ?? '-';
