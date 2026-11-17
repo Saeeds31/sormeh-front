@@ -3,9 +3,7 @@
     <h3 class="text-lg font-bold mb-4 m-0">نظر خود را بنویسید</h3>
 
     <form @submit.prevent="submitComment" class="space-y-4">
-      <!-- نام + امتیاز -->
       <div class="w-full flex flex-col md:flex-row gap-3 justify-between">
-        <!-- امتیاز -->
         <div class="w-full md:w-[50%]">
           <label class="block text-sm font-medium text-gray-700 mb-2"
             >امتیاز شما</label
@@ -37,7 +35,6 @@
         </div>
       </div>
 
-      <!-- متن نظر -->
       <div>
         <label
           for="comment"
@@ -55,7 +52,6 @@
         ></textarea>
       </div>
 
-      <!-- دکمه‌ها -->
       <div class="flex flex-col sm:flex-row gap-3 pt-2">
         <button
           type="submit"

@@ -20,7 +20,7 @@ export default defineNuxtConfig({
         dir: "rtl",
         lang: "fa",
       },
-      title: "ماه ستی | برازنده هر بانوی ایرانی",
+      title: " فروشگاه سرمه | مرجع خرید لوازم آرایشی و مراقبت پوست اورجینال",
       meta: [
         { charset: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },

@@ -1,3 +1,4 @@
+<!-- app/components/panel/EditUserModal.vue -->
 <template>
   <div
     v-if="show"

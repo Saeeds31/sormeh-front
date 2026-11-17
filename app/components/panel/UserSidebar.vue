@@ -1,3 +1,4 @@
+<!-- app/components/panel/UserSidebar.vue -->
 <template>
   <div class="card bg-gray-100 p-6 rounded-xl text-center">
     <div class="w-fit mx-auto flex items-center gap-2 pb-4">

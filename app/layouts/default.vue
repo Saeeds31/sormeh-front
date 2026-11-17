@@ -135,7 +135,7 @@ try {
         'hidden md:block': isProductPage || isCheckoutPage || isCategoryPage,
       }"
     >
-      <sharedFooter />
+      <SharedFooter />
     </div>
 
     <!-- نوبار پایین موبایل در صفحات محصول و فرایند خرید حذف می‌شود -->

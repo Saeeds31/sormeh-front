@@ -1,8 +1,8 @@
 <template>
   <div class="border-b flex gap-4 pb-4 items-center">
-    <div class="font-bold pb-3">مرتب سازی :</div>
     <div class="flex w-full justify-between items-center">
       <ul class="flex gap-2 flex-wrap">
+        مرتب سازی :
         <li
           v-for="option in sortOptions"
           :key="option.label"

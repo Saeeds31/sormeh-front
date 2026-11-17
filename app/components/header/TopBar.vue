@@ -36,7 +36,7 @@
       class="flex gap-1 items-center text-base font-normal max-md:hidden"
     >
       <img src="~/assets/images/rubika.png" alt="location" class="w-5 h-5" />
-      <span>ماه ستی در روبیکا</span>
+      <span> فروشگاه سرمه در روبیکا</span>
     </a>
   </section>
 </template>

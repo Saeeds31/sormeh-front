@@ -10,7 +10,6 @@
         <div
           class="grid grid-cols-2 lg:grid-cols-3 gap-3 w-full lg:w-auto flex-1 order-1 lg:order-2"
         >
-          <!-- ۱. تلفن تماس -->
           <div
             class="bg-white rounded-2xl p-2 sm:p-3 flex flex-col sm:flex-row lg:flex-col items-center justify-center lg:justify-between gap-2.5 shadow-xs border border-[#EBE5F5] text-center sm:text-right lg:text-center"
           >

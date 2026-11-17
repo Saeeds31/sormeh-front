@@ -175,7 +175,7 @@
       <SharedSectionSliderHeader
         :title-parts="[
           { text: 'محصولات', class: 'text-gray-900' },
-          { text: ' محصولات ترند', class: 'font-normal text-strong' },
+          { text: ' ترند', class: 'font-normal text-strong' },
         ]"
         @next="scrollRight"
         @prev="scrollLeft"

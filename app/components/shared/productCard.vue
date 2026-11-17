@@ -98,9 +98,7 @@
       <div v-else class="text-right">
         <span class="text-xs md:text-sm font-bold text-red-600">ناموجود</span>
       </div>
-      <button type="button" class="btn !text-sm !px-2">
-        افزودن ب سبد خرید
-      </button>
+      <button type="button" class="btn !text-sm !px-2">مشاهده وخرید</button>
     </div>
   </NuxtLink>
 </template>
