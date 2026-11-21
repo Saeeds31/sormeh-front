@@ -139,7 +139,7 @@ try {
     </div>
 
     <!-- نوبار پایین موبایل در صفحات محصول و فرایند خرید حذف می‌شود -->
-    <SharedMobileBottomNav v-if="!isProductPage && !isCheckoutPage" />
+    <SharedMobileNavigation v-if="!isProductPage && !isCheckoutPage" />
   </div>
 </template>
 

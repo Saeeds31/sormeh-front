@@ -2,6 +2,7 @@
   <div class="border-b flex gap-4 pb-4 items-center">
     <div class="flex w-full justify-between items-center">
       <ul class="flex gap-2 flex-wrap">
+        <IconSort />
         مرتب سازی :
         <li
           v-for="option in sortOptions"

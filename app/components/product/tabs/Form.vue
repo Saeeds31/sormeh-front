@@ -1,15 +1,10 @@
 <template>
   <div class="p-3 mt-6 rounded-inner border shadow-sm">
-    <h3 class="text-lg font-bold mb-4 m-0">نظر خود را بنویسید</h3>
-
     <form @submit.prevent="submitComment" class="space-y-4">
       <div class="w-full flex flex-col md:flex-row gap-3 justify-between">
         <div class="w-full md:w-[50%]">
-          <label class="block text-sm font-medium text-gray-700 mb-2"
-            >امتیاز شما</label
-          >
-
-          <div class="flex gap-2 justify-start md:justify-start">
+          <div class="flex gap-2 justify-start items-end md:justify-start">
+            به این محصول امتیاز دهید :
             <button
               v-for="star in 5"
               :key="star"
@@ -40,7 +35,7 @@
           for="comment"
           class="block text-sm font-medium text-gray-700 mb-2"
         >
-          نظر شما
+          متن دیدگاه :
         </label>
         <textarea
           v-model="formData.text"
@@ -50,6 +45,80 @@
           required
           class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm resize-y focus:outline-none focus:ring-2 focus:ring-blue-500"
         ></textarea>
+      </div>
+      <!-- بخش آپلود تصاویر (مطابق تصویر ارسالی) -->
+      <div>
+        <span class="block text-sm font-medium text-gray-700 mb-1 text-right">
+          تصاویر:
+        </span>
+
+        <p class="text-xs text-gray-400 mb-3 text-right">
+          یک یا چند تصویر انتخاب کنید
+        </p>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- پیش‌نمایش تصاویر انتخاب‌شده -->
+          <div
+            v-for="(preview, index) in imagePreviews"
+            :key="preview"
+            class="relative w-20 h-20 rounded-xl border border-gray-200 overflow-hidden group"
+          >
+            <img
+              :src="preview"
+              alt="پیش‌نمایش تصویر"
+              class="w-full h-full object-cover"
+            />
+
+            <button
+              type="button"
+              @click="removeImage(index)"
+              class="absolute inset-0 bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              title="حذف تصویر"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <!-- دکمه انتخاب یک یا چند تصویر -->
+          <label
+            class="w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:border-[#4B3073] hover:text-[#4B3073] cursor-pointer transition-colors bg-gray-50"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+
+            <input
+              ref="fileInput"
+              type="file"
+              accept="image/*"
+              multiple
+              class="hidden"
+              @change="handleFileChange"
+            />
+          </label>
+        </div>
       </div>
 
       <div class="flex flex-col sm:flex-row gap-3 pt-2">
@@ -80,7 +149,9 @@ import { toast } from "vue3-toastify";
 import { useApi } from "@/composables/api/useApi";
 const route = useRoute();
 const { loginModal } = useAuth();
-const { postProductComment } = useApi();
+
+const { postProductComment, getProductUploadStatus, postProductPhoto } =
+  useApi();
 
 const emit = defineEmits(["submit"]);
 
@@ -89,12 +160,95 @@ const formData = ref({
   rating: 0,
   text: "",
 });
+const selectedFiles = ref([]);
+const imagePreviews = ref([]);
+const fileInput = ref(null);
 let loading = ref(false);
 const isFormValid = computed(() => {
   return formData.value.rating > 0 && formData.value.text.trim();
 });
+
+const checkCanUpload = async () => {
+  try {
+    const res = await getProductUploadStatus(route.params.id);
+    return res;
+  } catch (error) {
+    console.error("Error checking upload status:", error);
+    return null;
+  }
+};
+
+const handleFileChange = async (event) => {
+  const files = Array.from(event.target.files || []);
+
+  if (!files.length) return;
+
+  const invalidFile = files.find((file) => file.size > 2 * 1024 * 1024);
+
+  if (invalidFile) {
+    toast.error("حجم هر تصویر نباید بیشتر از ۲ مگابایت باشد.");
+
+    if (fileInput.value) {
+      fileInput.value.value = "";
+    }
+
+    return;
+  }
+
+  const status = await checkCanUpload();
+
+  if (status && status.can_upload === false) {
+    toast.info(
+      status.message || "امکان ارسال تصویر برای این محصول وجود ندارد.",
+    );
+
+    if (fileInput.value) {
+      fileInput.value.value = "";
+    }
+
+    return;
+  }
+
+  imagePreviews.value.forEach((preview) => {
+    URL.revokeObjectURL(preview);
+  });
+
+  selectedFiles.value = files;
+  imagePreviews.value = files.map((file) => URL.createObjectURL(file));
+};
+
+const removeImage = (index = null) => {
+  if (index !== null) {
+    const preview = imagePreviews.value[index];
+
+    if (preview) {
+      URL.revokeObjectURL(preview);
+    }
+
+    selectedFiles.value.splice(index, 1);
+    imagePreviews.value.splice(index, 1);
+
+    if (fileInput.value) {
+      fileInput.value.value = "";
+    }
+
+    return;
+  }
+
+  imagePreviews.value.forEach((preview) => {
+    URL.revokeObjectURL(preview);
+  });
+
+  selectedFiles.value = [];
+  imagePreviews.value = [];
+
+  if (fileInput.value) {
+    fileInput.value.value = "";
+  }
+};
+
 const submitComment = async () => {
-  const token = process.client ? localStorage.getItem("auth-token") : null;
+  const token = localStorage.getItem("auth-token");
 
   if (!token) {
     toast.warning("لطفا ابتدا وارد حساب کاربری خود شوید", {
@@ -102,7 +256,6 @@ const submitComment = async () => {
     });
     localStorage.setItem("lastPage", route.fullPath);
 
-    // ریدایرکت به صفحه لاگین
     setTimeout(() => {
       loginModal.value = true;
     }, 1000);
@@ -111,18 +264,35 @@ const submitComment = async () => {
 
   if (isFormValid.value) {
     loading.value = true;
-    const fd = new FormData();
-    fd.append("rating", formData.value.rating);
-    fd.append("content", formData.value.text);
-    fd.append("parent_id", "");
+
     try {
+      const fd = new FormData();
+      fd.append("rating", formData.value.rating);
+      fd.append("content", formData.value.text);
+      fd.append("parent_id", "");
       await postProductComment(route.params.id, fd);
+
+      if (selectedFiles.value.length > 0) {
+        const photoData = new FormData();
+        console.log(selectedFiles.value);
+
+        selectedFiles.value.forEach((file, index) => {
+          // بک‌اند شما صراحتاً images.0 را درخواست کرده است
+          photoData.append(`images[${index}]`, file);
+        });
+
+        photoData.append("caption", "");
+
+        await postProductPhoto(route.params.id, photoData);
+      }
+
       toast.success("کامنت شما با موفقیت ثبت شد", {
         autoClose: 3000,
       });
+      emit("submit");
       resetForm();
     } catch (error) {
-      console.error("Error registering stock alert:", error);
+      console.error("Error submitting comment or photo:", error);
       toast.error(error.response?.data?.message || "خطا در ثبت درخواست");
     } finally {
       loading.value = false;
@@ -136,5 +306,6 @@ const resetForm = () => {
     rating: 0,
     text: "",
   };
+  removeImage();
 };
 </script>

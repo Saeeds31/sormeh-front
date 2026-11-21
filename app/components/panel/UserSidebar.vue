@@ -29,6 +29,7 @@
     <NuxtLink
       to="/panel/wallet"
       class="mb-8 gap-1.5 text-sm font-bold text-strong flex items-center justify-center p-3.5 rounded-lg bg-secondary-fade border-1 !border-secondary transition-colors duration-200"
+      @click="handleWalletClick"
     >
       <div>
         <span>اعتبار کیف پول : </span>
@@ -61,7 +62,7 @@
           '!bg-[var(--bg-secondary)] !text-[var(--text-primery)] font-medium':
             route.path === item.to,
         }"
-        @click="handleMenuClick(item.to)"
+        @click="handleMenuClick(item.to, $event)"
       >
         <component
           :is="item.icon"
@@ -95,6 +96,16 @@ import {
   LogOut,
   Star,
 } from "lucide-vue-next";
+const props = defineProps({
+  mobileMenu: Boolean,
+});
+
+const emit = defineEmits(["navigate"]);
+
+// منوی موبایل حالا بیرون پنل هم باز می‌شود؛ برای مهمان کیف پول را درخواست نکن.
+const canReadWallet =
+  !props.mobileMenu ||
+  (import.meta.client && Boolean(localStorage.getItem("auth-token")));
 
 const route = useRoute();
 const router = useRouter();
@@ -113,10 +124,13 @@ const { data: walletData } = await useAsyncData(
   {
     lazy: true,
     server: false,
+    immediate: canReadWallet,
   },
 );
 
 const walletBalance = computed(() => {
+  if (!canReadWallet) return 0;
+
   return (
     walletData.value?.wallet?.balance ?? walletData.value?.data?.balance ?? 0
   );
@@ -162,42 +176,57 @@ const formatMobile = (mobile) => {
   return mobile;
 };
 
-const handleMenuClick = (to) => {
+const handleWalletClick = (event) => {
+  if (!props.mobileMenu) return;
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+  emit("navigate");
+};
+
+const handleMenuClick = (to, event) => {
+  if (props.mobileMenu) {
+    handleWalletClick(event);
+    return;
+  }
+
+  // رفتار قبلی برای نمونه‌هایی که خارج از منوی موبایل رندر می‌شوند
   if (process.client && window.innerWidth < 768) {
     if (route.path === to) {
       scrollDown();
       return;
     }
+
     pendingScroll.value = true;
   }
 };
 
-const scrollDown = () => {
-  window.scrollBy({
-    top: 150,
-    behavior: "smooth",
-  });
-};
+// const scrollDown = () => {
+//   window.scrollBy({
+//     top: 150,
+//     behavior: "smooth",
+//   });
+// };
 
-watch(
-  () => route.path,
-  async () => {
-    if (!pendingScroll.value) return;
-    if (!process.client || window.innerWidth >= 768) {
-      pendingScroll.value = false;
-      return;
-    }
+// watch(
+//   () => route.path,
+//   async () => {
+//     if (!pendingScroll.value) return;
+//     if (!process.client || window.innerWidth >= 768) {
+//       pendingScroll.value = false;
+//       return;
+//     }
 
-    await nextTick();
+//     await nextTick();
 
-    setTimeout(() => {
-      scrollDown();
-      pendingScroll.value = false;
-    }, 300);
-  },
-);
+//     setTimeout(() => {
+//       scrollDown();
+//       pendingScroll.value = false;
+//     }, 300);
+//   },
+// );
 
 const logout = () => {
+  if (props.mobileMenu) emit("navigate");
   router.push("/");
 };
 </script>

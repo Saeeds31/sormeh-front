@@ -2,7 +2,7 @@
 <template>
   <div class="lg:hidden w-full">
     <!-- Tabs Slider -->
-    <div class="flex overflow-x-auto gap-2 py-3 px-3 border-b">
+    <div class="flex overflow-x-auto gap-2 py-3 border-b">
       <button
         v-for="(tab, index) in tabs"
         :key="index"

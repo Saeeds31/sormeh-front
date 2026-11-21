@@ -3,7 +3,7 @@
   <main class="container mx-auto" dir="rtl">
     <sharedBreadCrumb :items="[{ label: 'محصولات', href: '/products' }]" />
 
-    <section class="flex flex-col lg:flex-row gap-6 mt-10">
+    <section class="flex flex-col lg:flex-row gap-6 md:mt-10">
       <ProductsAside
         class="hidden lg:block"
         v-model:selectedCategories="filters.categories"
@@ -30,8 +30,8 @@
             @click="clearAllFilters"
             class="flex items-center gap-2 text-red-500 border-2 !border-red-300 px-3 py-1.5 rounded-md text-xs hover:bg-red-50"
           >
+            <IconTrashRed class="w-4 h-4" />
             حذف همه فیلترها
-            <Trash class="w-4 h-4" />
           </button>
 
           <!-- چیپ‌های فیلتر (سمت راست) -->

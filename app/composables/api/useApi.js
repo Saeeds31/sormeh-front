@@ -68,8 +68,38 @@ export const useApi = () => {
     const res = await $api.get(`/front/products/${id}/comments`);
     return res.data;
   };
+
   const postProductComment = async (id, payloadd) => {
     const res = await $api.post(`/front/products/${id}/comments`, payloadd);
+    return res.data;
+  };
+
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("auth-token");
+
+    if (!token) {
+      throw new Error('توکن در localStorage با کلید "auth-token" پیدا نشد.');
+    }
+
+    return {
+      Authorization: `Bearer ${token}`,
+    };
+  };
+
+  const getProductUploadStatus = async (productId) => {
+    const res = await $api.get(
+      `/front/products/${productId}/customer-photos/check-upload`,
+      { headers: getAuthHeaders() },
+    );
+    return res.data;
+  };
+
+  const postProductPhoto = async (productId, payload) => {
+    const res = await $api.post(
+      `/front/products/${productId}/customer-photos`,
+      payload,
+      { headers: getAuthHeaders() },
+    );
     return res.data;
   };
 
@@ -249,6 +279,8 @@ export const useApi = () => {
     getProduct,
     getProductComments,
     postProductComment,
+    getProductUploadStatus,
+    postProductPhoto,
     addToCart,
     getCart,
     increaseCartItem,

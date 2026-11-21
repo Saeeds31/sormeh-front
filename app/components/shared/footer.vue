@@ -220,6 +220,7 @@
 import { computed } from "vue";
 import { useSettingStore } from "~/store/settings.js";
 import { storeToRefs } from "pinia";
+import { useContactLinks } from "~/composables/useContactLinks";
 
 const settingStore = useSettingStore();
 const { settings, menus } = storeToRefs(settingStore);
@@ -287,36 +288,40 @@ const topCategories = [
   { label: "باشگاه مشتریان", href: "/club" },
 ];
 
-// آیکون‌ها و لینک‌های شبکه‌های اجتماعی
+const contactLinks = computed(() =>
+  useContactLinks(settings.value?.contact || {}),
+);
+
+// شبکه‌های اجتماعی
 const socialList = computed(() => {
   const dynamicSocials = settings.value?.social || {};
+  const links = contactLinks.value;
 
   return [
     {
-      name: "Instagram",
-      link:
-        dynamicSocials.instagram || "https://instagram.com/sormeh.cosmetic_",
+      name: "اینستاگرام",
+      link: dynamicSocials.instagram || links.instagramUrl,
       icon: "/icons/Instagram1.svg",
     },
     {
-      name: "Telegram",
-      link: dynamicSocials.telegram || "https://t.me",
+      name: "ایتا",
+      link: dynamicSocials.eitaa || links.eitaaUrl,
+      icon: "/icons/Eitaa.svg",
+    },
+    {
+      name: "روبیکا",
+      link: dynamicSocials.rubika || links.rubikaUrl,
       icon: "/icons/Rubika.svg",
     },
     {
-      name: "Social",
-      link: dynamicSocials.whatsapp || "https://Social",
-      icon: "/icons/Social.svg",
+      name: "سروش",
+      link: dynamicSocials.soroush || links.soroushUrl,
+      icon: "/icons/Soroush.svg",
     },
     {
-      name: "Rubika / Eitaa",
-      link: dynamicSocials.rubika || "#",
-      icon: "/icons/Global.svg",
-    },
-    {
-      name: "Aparat",
-      link: dynamicSocials.aparat || "#",
-      icon: "/icons/Vector.svg",
+      name: "بله",
+      link: dynamicSocials.bale || links.baleUrl,
+      icon: "/icons/Bale.svg",
     },
   ];
 });

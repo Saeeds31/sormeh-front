@@ -78,23 +78,54 @@
             دریافت مشاوره آنلاین
           </h2>
 
-          <form @submit.prevent="onSubmit" class="space-y-4">
+          <form @submit.prevent="onSubmit" class="space-y-4" novalidate>
             <div>
               <input
                 v-model="form.name"
                 type="text"
                 placeholder="نام و نام خانوادگی"
+                autocomplete="name"
+                :aria-invalid="Boolean(errors.name)"
+                :aria-describedby="
+                  errors.name ? 'consultation-name-error' : undefined
+                "
                 class="w-full bg-white border border-transparent rounded-xl px-5 py-3.5 text-sm md:text-base text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#4B3073] transition placeholder-gray-400 text-right shadow-sm"
+                @input="clearError('name')"
+                @blur="validateName"
               />
+              <p
+                v-if="errors.name"
+                id="consultation-name-error"
+                class="mt-2 px-1 text-right text-xs text-red-700"
+                role="alert"
+              >
+                {{ errors.name }}
+              </p>
             </div>
 
             <div>
               <input
                 v-model="form.phone"
                 type="tel"
+                inputmode="tel"
+                autocomplete="tel"
                 placeholder="شماره تماس"
+                :aria-invalid="Boolean(errors.phone)"
+                :aria-describedby="
+                  errors.phone ? 'consultation-phone-error' : undefined
+                "
                 class="w-full bg-white border border-transparent rounded-xl px-5 py-3.5 text-sm md:text-base text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#4B3073] transition placeholder-gray-400 text-right shadow-sm"
+                @input="clearError('phone')"
+                @blur="validatePhone"
               />
+              <p
+                v-if="errors.phone"
+                id="consultation-phone-error"
+                class="mt-2 px-1 text-right text-xs text-red-700"
+                role="alert"
+              >
+                {{ errors.phone }}
+              </p>
             </div>
 
             <div>
@@ -138,27 +169,100 @@ const form = ref({
   message: "",
 });
 
+const errors = ref({
+  name: "",
+  phone: "",
+});
+
 const loading = ref(false);
 
+function normalizeDigits(value) {
+  return value
+    .replace(/[۰-۹]/g, (digit) => String(digit.charCodeAt(0) - 1776))
+    .replace(/[٠-٩]/g, (digit) => String(digit.charCodeAt(0) - 1632));
+}
+
+function clearError(field) {
+  if (errors.value[field]) {
+    errors.value[field] = "";
+  }
+}
+
+function validateName() {
+  const name = form.value.name.trim();
+
+  if (!name) {
+    errors.value.name = "وارد کردن نام و نام خانوادگی الزامی است.";
+    return false;
+  }
+
+  if (name.length < 3) {
+    errors.value.name = "نام باید حداقل ۳ نویسه باشد.";
+    return false;
+  }
+
+  if (!/^[\p{L}\s\u200c'-]+$/u.test(name)) {
+    errors.value.name = "نام را فقط با حروف وارد کنید.";
+    return false;
+  }
+
+  errors.value.name = "";
+  return true;
+}
+
+function validatePhone() {
+  const rawPhone = normalizeDigits(form.value.phone.trim());
+  const phone = rawPhone.replace(/[\s()-]/g, "");
+
+  if (!phone) {
+    errors.value.phone = "وارد کردن شماره تماس الزامی است.";
+    return false;
+  }
+
+  // پشتیبانی از 09xxxxxxxxx، +989xxxxxxxxx و 00989xxxxxxxxx
+  const iranianMobilePattern = /^(?:09\d{9}|\+989\d{9}|00989\d{9})$/;
+
+  if (!iranianMobilePattern.test(phone)) {
+    errors.value.phone =
+      "شماره تماس معتبر نیست؛ شماره را مانند ۰۹۱۲۳۴۵۶۷۸۹ وارد کنید.";
+    return false;
+  }
+
+  errors.value.phone = "";
+  return true;
+}
+
+function validateForm() {
+  const isNameValid = validateName();
+  const isPhoneValid = validatePhone();
+
+  return isNameValid && isPhoneValid;
+}
+
 const onSubmit = () => {
-  if (!form.value.name || !form.value.phone) {
+  if (loading.value) return;
+
+  if (!validateForm()) {
     if (typeof toast !== "undefined" && toast.error) {
-      toast.error("لطفاً نام و شماره تماس خود را وارد نمایید.");
+      toast.error("لطفاً خطاهای فرم را بررسی کنید.");
     }
     return;
   }
 
   loading.value = true;
+
   setTimeout(() => {
     loading.value = false;
+
     if (typeof toast !== "undefined" && toast.success) {
       toast.success("درخواست مشاوره شما با موفقیت ثبت شد.");
     }
+
     form.value = { name: "", phone: "", message: "" };
+    errors.value = { name: "", phone: "" };
   }, 1000);
 };
 
-// لیست سوالات متداول
 const faqs = ref([
   {
     id: 1,

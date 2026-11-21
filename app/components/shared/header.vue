@@ -439,7 +439,7 @@ watch(isMenuOpen, (open) => {
             <button
               type="button"
               @click="toggleMenu"
-              class="p-2 rounded-xl border-2 border-gray-300"
+              class="px-2.5 rounded-xl border-2 border-gray-300"
             >
               <IconMenu />
             </button>

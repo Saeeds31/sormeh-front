@@ -228,6 +228,7 @@ import {
   Smartphone,
 } from "lucide-vue-next";
 import Frame from "../icon/Frame.vue";
+import { useContactLinks } from "~/composables/useContactLinks";
 
 const props = defineProps({
   contactInfo: {
@@ -236,63 +237,5 @@ const props = defineProps({
   },
 });
 
-const toEnglishDigits = (value) =>
-  String(value ?? "")
-    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
-    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));
-
-const digitsOnly = (value) => toEnglishDigits(value).replace(/\D/g, "");
-
-const cleanHandle = (value) =>
-  String(value ?? "")
-    .trim()
-    .replace(/^@/, "");
-
-const info = computed(() => {
-  const contact = props.contactInfo || {};
-
-  const mobile = contact.mobile || "۰۹۱۱-۷۳۵-۱۵۴۴";
-  const phone = contact.phone || "۰۱۷۳-۲۵۲-۵۰۳۱";
-
-  const rawMobile = digitsOnly(contact.rawMobile || mobile);
-  const rawPhone = digitsOnly(contact.rawPhone || phone);
-
-  const instagramId = contact.instagramId || "@sormeh.cosmetic__";
-  const baleId = contact.baleId || "@sormeh.cosmetic__";
-
-  const mobileForWhatsApp = digitsOnly(
-    contact.whatsappPhone || contact.rawMobile || mobile,
-  );
-  const internationalWhatsAppPhone = mobileForWhatsApp.startsWith("0")
-    ? `98${mobileForWhatsApp.slice(1)}`
-    : mobileForWhatsApp;
-
-  const whatsappId = contact.whatsappId || mobile;
-
-  return {
-    address:
-      contact.address ||
-      "گلستان-گرگان-نبش گلشهر2-فروشگاه لوازم آرایشی بهداشتی سرمه",
-
-    mobile,
-    phone,
-    rawMobile,
-    rawPhone,
-
-    baleId,
-    baleUrl: contact.baleUrl || `https://ble.ir/${cleanHandle(baleId)}`,
-
-    whatsappId,
-    whatsappUrl:
-      contact.whatsappUrl ||
-      (internationalWhatsAppPhone
-        ? `https://wa.me/${internationalWhatsAppPhone}`
-        : "https://www.whatsapp.com/"),
-
-    instagramId,
-    instagramUrl:
-      contact.instagramUrl ||
-      `https://www.instagram.com/${cleanHandle(instagramId)}/`,
-  };
-});
+const info = computed(() => useContactLinks(props.contactInfo || {}));
 </script>
