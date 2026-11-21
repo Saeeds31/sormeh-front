@@ -1,5 +1,4 @@
 <!-- app/pages/panel/orders.vue -->
-
 <!-- <template>
   <div class="p-8 bg-gray-100 rounded-xl">
     <h3 class="font-bold text-xl pb-4 mb-4 border-b">سفارش ها</h3>

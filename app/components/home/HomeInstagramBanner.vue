@@ -112,7 +112,7 @@ defineProps({
             </NuxtLink>
           </div>
 
-          <div class="order-1 text-right text-white flex-1 pr-40 lg:pr-60">
+          <div class="order-1 text-right text-white flex-1 pr-40 lg:pr-96">
             <h3 class="text-lg lg:text-xl font-bold tracking-tight my-2">
               {{ title }}
             </h3>

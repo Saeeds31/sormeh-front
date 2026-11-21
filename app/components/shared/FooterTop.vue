@@ -35,11 +35,12 @@
               class="flex flex-col items-center sm:items-start lg:items-center order-2 sm:order-1 lg:order-2 min-w-0"
             >
               <a
-                href="tel:09115118790"
+                href="tel:09117351544"
                 dir="ltr"
                 class="text-xs sm:text-sm font-bold text-[#4B3073] hover:opacity-80 transition whitespace-nowrap"
-                >۰۹۱۱-۵۱۱-۸۷۹۰</a
               >
+                ۰۹۱۱-۷۳۵- ۱۵۴۴
+              </a>
               <span
                 class="text-xs sm:text-sm text-gray-400 mt-0.5 whitespace-nowrap"
                 >همیشه آنلاین هستیم</span

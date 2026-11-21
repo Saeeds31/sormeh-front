@@ -100,14 +100,17 @@
                 </span>
               </a>
               <a
-                href="https://trustseal.enamad.ir"
+                href="https://trustseal.enamad.ir/?id=8819003&Code=ly41dSxrQH1mUoZcIrufXW10l2uyLTjw"
                 target="_blank"
-                rel="noopener"
+                rel="noopener noreferrer"
+                referrerpolicy="origin"
               >
                 <img
-                  src="/images/enamad.svg"
-                  alt="اینماد"
-                  class="h-24 md:h-24 w-auto object-contain"
+                  src="https://trustseal.enamad.ir/logo.aspx?id=8819003&Code=ly41dSxrQH1mUoZcIrufXW10l2uyLTjw"
+                  alt="نماد اعتماد الکترونیکی"
+                  class="h-24 md:h-24 w-auto object-contain cursor-pointer"
+                  code="ly41dSxrQH1mUoZcIrufXW10l2uyLTjw"
+                  referrerpolicy="origin"
                 />
                 <span class="text-[9px] text-gray-700 mt-1 block text-center">
                   eNAMAD.ir

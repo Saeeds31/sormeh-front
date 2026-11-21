@@ -200,8 +200,8 @@
             </div>
 
             <NuxtLink
-              to="/auth/register"
-              class="inline-flex items-center justify-center gap-1.5 sm:gap-2 bg-[#9B87CE] hover:bg-[#8871C3] text-white text-xs sm:text-sm font-bold py-1.5 px-4 sm:py-2 sm:px-6 rounded-xl sm:rounded-full transition-all duration-200 shadow-sm shrink-0"
+              @click="navigateTo('/panel/sormeh')"
+              class="inline-flex items-center justify-center gap-1.5 sm:gap-2 bg-[#9B87CE] hover:bg-[#8871C3] text-white text-xs sm:text-sm font-bold py-1.5 px-4 sm:py-2 sm:px-6 rounded-xl sm:rounded-full transition-all duration-200 shadow-sm shrink-0 cursor-pointer"
             >
               <span>عضویت</span>
               <svg

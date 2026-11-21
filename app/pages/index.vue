@@ -1,3 +1,4 @@
+<!-- app/pages/index.vue -->
 <template>
   <main class="space-y-10">
     <div
