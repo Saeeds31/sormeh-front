@@ -30,7 +30,7 @@
           <button class="btn" @click="showModal = true">ویرایش</button>
 
           <!-- مودال -->
-          <panelEditUserModal
+          <PanelEditUserModal
             :show="showModal"
             :userData="profileData?.user"
             @close="showModal = false"

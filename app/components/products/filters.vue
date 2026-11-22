@@ -198,9 +198,11 @@ const emit = defineEmits(["update:selectedCategories"]);
 
 const collapsed = ref(false);
 const localSelectedCategories = ref([...props.selectedCategories]);
-
-// وضعیت باز و بسته بودن هر دسته؛ در ابتدا همه بسته هستند
 const openSubs = ref({});
+
+const sameIds = (a, b) =>
+  a.length === b.length &&
+  a.every((id, index) => String(id) === String(b[index]));
 
 const toggleSub = (id) => {
   openSubs.value[id] = !openSubs.value[id];
@@ -208,7 +210,6 @@ const toggleSub = (id) => {
 
 const isSubOpen = (id) => Boolean(openSubs.value[id]);
 
-// سازگاری با ساختار children یا all_children
 const getChildren = (item) => {
   return item?.children || item?.all_children || [];
 };
@@ -218,20 +219,26 @@ const hasChildren = (item) => {
   return Array.isArray(children) && children.length > 0;
 };
 
-// ارسال انتخاب‌ها به کامپوننت والد
+// تغییر ناشی از چک‌باکس را فقط در صورت تغییر واقعی به والد بفرست.
 watch(
   localSelectedCategories,
   (value) => {
-    emit("update:selectedCategories", value);
+    if (!sameIds(value, props.selectedCategories)) {
+      emit("update:selectedCategories", [...value]);
+    }
   },
   { deep: true },
 );
 
-// همگام‌سازی انتخاب‌های دریافتی از کامپوننت والد
+// تغییر ناشی از URL یا «حذف همه فیلترها» را فقط در صورت نیاز اعمال کن.
 watch(
   () => props.selectedCategories,
   (value) => {
-    localSelectedCategories.value = [...value];
+    const nextValue = value ?? [];
+
+    if (!sameIds(localSelectedCategories.value, nextValue)) {
+      localSelectedCategories.value = [...nextValue];
+    }
   },
   { deep: true },
 );

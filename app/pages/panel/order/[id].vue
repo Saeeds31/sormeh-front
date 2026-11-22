@@ -8,7 +8,7 @@
   </div>
 
   <!-- خطا -->
-  <div v-else-if="error" class="p-8 bg-gray-100 rounded-xl text-center">
+  <div v-else-if="error" class="md:p-8 md:bg-gray-100 rounded-xl text-center">
     <div class="text-red-500 text-lg font-bold">خطا در بارگذاری اطلاعات</div>
     <p class="text-muted mt-2">{{ error }}</p>
     <button
@@ -19,7 +19,7 @@
     </button>
   </div>
 
-  <div v-else class="p-8 bg-gray-100 rounded-xl">
+  <div v-else class="md:p-8 md:bg-gray-100 rounded-xl">
     <!-- Header -->
     <div class="flex gap-3 items-center mb-4 pb-4 border-b">
       <MoveRight class="w-5 h-5" />

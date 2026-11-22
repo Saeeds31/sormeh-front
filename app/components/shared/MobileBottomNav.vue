@@ -3,7 +3,7 @@
   <nav
     aria-label="ناوبری اصلی موبایل"
     dir="rtl"
-    class="fixed z-40 flex items-center justify-between right-[max(16px,env(safe-area-inset-right))] left-[max(16px,env(safe-area-inset-left))] bottom-[max(12px,env(safe-area-inset-bottom))] gap-1"
+    class="fixed z-30 flex items-center justify-between right-[max(16px,env(safe-area-inset-right))] left-[max(16px,env(safe-area-inset-left))] bottom-[max(12px,env(safe-area-inset-bottom))] gap-1"
     :class="panel ? 'lg:hidden' : 'md:hidden'"
   >
     <div
@@ -161,7 +161,7 @@ const route = useRoute();
 
 const items = [
   { label: "خانه", to: "/", icon: "home", match: ["/"] },
-  { label: "فروشگاه", to: "/products", icon: "store", match: ["/shop"] },
+  { label: "فروشگاه", to: "/products", icon: "store", match: ["/products"] },
   {
     label: "باشگاه",
     to: "/panel/sormeh",

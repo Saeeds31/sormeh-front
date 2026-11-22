@@ -32,7 +32,7 @@
           alt="نقل قول مدیریت گالری سرمه"
           fallback="/images/about/Group.svg"
           format="webp"
-          class="w-full h-[154px] md:h-[235px] object-cover hover:scale-105 transition-transform duration-500"
+          class="w-full h-[150px] md:h-[235px] object-cover transition-transform duration-500"
         />
       </div>
 
@@ -44,7 +44,7 @@
           alt="ضدآفتاب‌های معتبر گالری سرمه"
           fallback="/images/about/Group.svg"
           format="webp"
-          class="w-full h-[154px] md:h-[235px] object-cover hover:scale-105 transition-transform duration-500"
+          class="w-full h-[154px] md:h-[235px] object-cover transition-transform duration-500"
         />
       </div>
     </div>
@@ -59,7 +59,7 @@
           alt="کلکسیون عطر و ادکلن سرمه"
           fallback="/images/about/Group.svg"
           format="webp"
-          class="w-full h-[154px] md:h-[235px] object-cover hover:scale-105 transition-transform duration-500"
+          class="w-full h-[154px] md:h-[235px] object-cover transition-transform duration-500"
         />
       </div>
 
@@ -71,7 +71,7 @@
           alt="محصولات مراقبت پوستی سرمه"
           fallback="/images/about/Group.svg"
           format="webp"
-          class="w-full h-[154px] md:h-[235px] object-cover hover:scale-105 transition-transform duration-500"
+          class="w-full h-[154px] md:h-[235px] object-cover transition-transform duration-500"
         />
       </div>
     </div>

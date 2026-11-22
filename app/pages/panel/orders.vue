@@ -172,14 +172,16 @@ function getStatusColor(status) {
 
 <!-- app/pages/panel/orders.vue -->
 <template>
-  <div class="p-8 bg-gray-100 rounded-xl">
+  <div class="md:p-8 md:bg-gray-100 rounded-xl">
     <!-- تب‌های فیلتر بر اساس فیگما -->
-    <div class="flex flex-wrap items-center gap-3 mb-6">
+    <div
+      class="flex items-center gap-3 max-md:space-y-3 md:mb-6 md:flex-wrap max-md:flex-nowrap max-md:overflow-x-auto max-md:px-1 max-md:-mx-1 max-md:scrollbar-hide"
+    >
       <button
         v-for="tab in filterTabs"
         :key="tab.id"
         @click="activeTab = tab.id"
-        class="px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border"
+        class="px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border shrink-0 whitespace-nowrap"
         :class="
           activeTab === tab.id
             ? 'bg-[var(--bg-secondary)] text-white border-[var(--bg-secondary)] shadow-sm'

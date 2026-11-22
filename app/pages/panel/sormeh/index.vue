@@ -1,69 +1,58 @@
 <!-- app/pages/panel/sormeh/index.vue -->
 <template>
   <div class="space-y-6" dir="rtl">
+    <!-- کارت اصلی کلاب -->
     <div class="bg-gray-100 rounded-xl shadow-xs overflow-hidden">
       <div
         class="relative bg-[#9374C9] p-3 sm:p-4 flex items-center justify-between"
       >
+        <!-- کپسول زرد نمایش تعداد سکه‌ها -->
         <div
           class="z-10 bg-[#FFD857] text-amber-950 px-4 py-2 rounded-full font-bold text-xs sm:text-sm flex items-center gap-2 shadow-sm"
         >
           <span>تعداد سکه شما:</span>
           <span class="font-extrabold text-base">{{
-            formatNumber(summary.data?.total_points)
+            formatNumber(summaryData?.total_points)
           }}</span>
-          <SharedAppImage src="/icons/coin.png" alt="" img-class="" />
+
+          <SharedAppImage src="/icons/coin.png" alt="لوگو" img-class="" />
         </div>
         <div class="absolute items-center left-2 top-2 gap-2 z-10">
-          <SharedAppImage src="/images/coins.png" alt="" img-class="" />
+          <SharedAppImage src="/images/coins.png" alt="لوگو" img-class="" />
         </div>
       </div>
 
+      <!-- محتوای داخلی کلاب -->
       <div class="p-4 sm:p-6 space-y-6">
-        <nav
-          aria-label="بخش‌های سرمه کلاب"
+        <!-- ۲. تب‌های ناوبری کلاب -->
+        <div
           class="flex items-center gap-2 overflow-x-auto pb-2 border-b border-gray-100 scrollbar-none"
         >
           <button
             v-for="tab in clubTabs"
             :key="tab.id"
-            type="button"
-            :aria-pressed="activeTab === tab.id"
+            @click="activeTab = tab.id"
             class="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer"
             :class="
               activeTab === tab.id
                 ? 'bg-[#533470] text-white shadow-xs font-bold'
                 : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
             "
-            @click="activeTab = tab.id"
           >
             {{ tab.title }}
           </button>
-        </nav>
+        </div>
 
+        <!-- تب ۱: سرمه کلاب (محتوای اصلی) -->
         <div v-if="activeTab === 'club'" class="space-y-6">
-          <p
-            v-if="isLoading(summary)"
-            role="status"
-            class="text-xs text-gray-600"
-          >
-            در حال دریافت اطلاعات باشگاه…
-          </p>
-          <div
-            v-else-if="summary.status === 'error'"
-            class="flex flex-wrap items-center gap-3 text-xs text-red-700"
-          >
-            <p role="alert">{{ summary.error }}</p>
-            <button
-              type="button"
-              class="underline cursor-pointer"
-              @click="loadSummary"
-            >
-              تلاش دوباره
-            </button>
+          <!-- لودینگ خلاصه کلاب -->
+          <div v-if="summaryPending" class="flex justify-center py-8">
+            <SharedLoadingSpinner size="md" />
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- ۳. کارت‌های سه‌گانه وضعیت کاربر -->
+          <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- موجودی سرمه کلاب -->
             <div
               class="bg-gray-200 border border-gray-100 rounded-xl p-4 flex flex-col justify-between h-28"
             >
@@ -74,9 +63,9 @@
                 >
               </div>
               <div class="text-left">
-                <span class="text-base sm:text-lg font-bold text-gray-900">{{
-                  formatNumber(summary.data?.total_points)
-                }}</span>
+                <span class="text-base sm:text-lg font-bold text-gray-900">
+                  {{ formatNumber(summaryData?.total_points) }}
+                </span>
                 <span class="text-xs text-gray-500 mr-1">سکه</span>
               </div>
             </div>
@@ -90,17 +79,18 @@
               </div>
               <div class="flex items-center justify-end gap-2">
                 <SharedAppImage
-                  v-if="currentTier"
-                  :src="currentTier.icon"
-                  alt=""
+                  src="/icons/coinB.svg"
+                  alt="لوگو"
                   img-class="w-6"
                 />
-                <span class="text-sm font-bold text-gray-900">{{
-                  currentTier?.label ?? "—"
-                }}</span>
+
+                <span class="text-sm font-bold text-gray-900">
+                  {{ getTierLabel(summaryData?.level) }}
+                </span>
               </div>
             </div>
 
+            <!-- تاریخ عضویت -->
             <div
               class="bg-gray-200 border border-gray-100 rounded-xl p-4 flex flex-col justify-between h-28"
             >
@@ -109,43 +99,11 @@
                 <span class="text-xs sm:text-sm font-bold">تاریخ عضویت</span>
               </div>
               <div class="text-left">
-                <!-- قرارداد فعلی API تاریخ عضویت ندارد. -->
-                <span class="text-xs sm:text-sm font-bold text-gray-900"
-                  >—</span
-                >
+                <span class="text-xs sm:text-sm font-bold text-gray-900">
+                  {{ formatMembershipDate(profileData?.user?.created_at) }}
+                </span>
               </div>
             </div>
-          </div>
-
-          <div
-            class="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-xs text-gray-700"
-          >
-            <p>
-              تخفیف فعال:
-              <strong>{{
-                summary.status === "success"
-                  ? `${formatNumber(summary.data.discount_percent)}٪`
-                  : "—"
-              }}</strong>
-            </p>
-            <p aria-live="polite">
-              وضعیت ارسال رایگان: <strong>{{ shippingLabel }}</strong>
-            </p>
-            <template v-if="shipping.status === 'error'">
-              <p role="alert" class="text-red-700">
-                {{ shipping.error
-                }}<span v-if="summary.status === 'success'">
-                  وضعیت بالا از اطلاعات خلاصه باشگاه نمایش داده شده است.</span
-                >
-              </p>
-              <button
-                type="button"
-                class="text-[#533470] underline cursor-pointer"
-                @click="loadShipping"
-              >
-                بررسی دوباره
-              </button>
-            </template>
           </div>
 
           <div class="space-y-3">
@@ -155,77 +113,93 @@
                 سطح‌بندی سرمه کلاب
               </h3>
             </div>
+
             <div class="overflow-x-auto rounded-xl border border-gray-100">
               <table class="w-full text-center text-xs border-collapse">
                 <thead>
                   <tr class="bg-[#ddd5e8] text-gray-800 font-bold">
-                    <th scope="col" class="py-3 px-3 text-right pr-6">عنوان</th>
-                    <th
-                      v-for="tier in tiers"
-                      :key="tier.id"
-                      scope="col"
-                      class="py-3 px-3"
-                    >
-                      {{ tier.label }}
-                    </th>
+                    <th class="py-3 px-3 text-right pr-6">عنوان</th>
+                    <th class="py-3 px-3">سطح برنز</th>
+                    <th class="py-3 px-3">سطح گلد</th>
+                    <th class="py-3 px-3">سطح پلاتینیوم</th>
                   </tr>
                 </thead>
                 <tbody
                   class="divide-y divide-gray-100 text-gray-700 font-medium"
                 >
                   <tr class="hover:bg-gray-50/60">
-                    <th
-                      scope="row"
+                    <td
                       class="py-3 px-3 text-right pr-6 text-gray-500 font-bold align-middle"
                     >
                       نماد
-                    </th>
-                    <td
-                      v-for="tier in tiers"
-                      :key="tier.id"
-                      class="py-3 px-3 text-center align-middle"
-                    >
+                    </td>
+                    <td class="py-3 px-3 text-center align-middle">
                       <div class="flex items-center justify-center">
                         <SharedAppImage
-                          :src="tier.icon"
-                          :alt="tier.label"
-                          :img-class="
-                            tier.id === 'gold'
-                              ? 'w-7 h-7 object-contain'
-                              : 'w-6 h-6 object-contain'
-                          "
+                          src="/icons/coinB.svg"
+                          alt="لوگو برنز"
+                          img-class="w-6 h-6 object-contain"
+                        />
+                      </div>
+                    </td>
+                    <td class="py-3 px-3 text-center align-middle">
+                      <div class="flex items-center justify-center">
+                        <SharedAppImage
+                          src="/icons/coin.png"
+                          alt="لوگو گلد"
+                          img-class="w-7 h-7 object-contain"
+                        />
+                      </div>
+                    </td>
+                    <td class="py-3 px-3 text-center align-middle">
+                      <div class="flex items-center justify-center">
+                        <SharedAppImage
+                          src="/icons/coinN.svg"
+                          alt="لوگو پلاتینیوم"
+                          img-class="w-6 h-6 object-contain"
                         />
                       </div>
                     </td>
                   </tr>
-                  <tr
-                    v-for="(row, index) in tierRows"
-                    :key="row.field"
-                    :class="
-                      index % 2 === 0
-                        ? 'bg-gray-200 hover:bg-gray-50'
-                        : 'hover:bg-gray-50/60'
-                    "
-                  >
-                    <th
-                      scope="row"
+
+                  <tr class="bg-gray-200 hover:bg-gray-50">
+                    <td
                       class="py-3.5 px-3 text-right pr-6 text-gray-500 font-bold"
                     >
-                      {{ row.label }}
-                    </th>
-                    <td
-                      v-for="tier in tiers"
-                      :key="tier.id"
-                      class="py-3.5 px-3"
-                    >
-                      {{ tier[row.field] }}
+                      تعداد سکه مورد نیاز
                     </td>
+                    <td class="py-3.5 px-3 my-2">(۰ تا ۵۰۰)</td>
+                    <td class="py-3.5 px-3">(۵۰۰ تا ۱۰۰۰)</td>
+                    <td class="py-3.5 px-3">(۱۰۰۰ تا ۲۰۰۰)</td>
+                  </tr>
+
+                  <tr class="hover:bg-gray-50/60">
+                    <td
+                      class="py-3.5 px-3 text-right pr-6 text-gray-500 font-bold"
+                    >
+                      درصد تخفیف
+                    </td>
+                    <td class="py-3.5 px-3">۲%</td>
+                    <td class="py-3.5 px-3">۳%</td>
+                    <td class="py-3.5 px-3">۴%</td>
+                  </tr>
+
+                  <tr class="bg-gray-200 hover:bg-gray-50">
+                    <td
+                      class="py-3.5 px-3 text-right pr-6 text-gray-500 font-bold"
+                    >
+                      حمل و نقل
+                    </td>
+                    <td class="py-3.5 px-3">-</td>
+                    <td class="py-3.5 px-3">یک ارسال رایگان در ماه</td>
+                    <td class="py-3.5 px-3">دو ارسال رایگان در ماه</td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
 
+          <!-- ۵. بخش ماموریت‌ها -->
           <div class="space-y-3 pt-2">
             <div class="flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-[#533470]"></span>
@@ -233,204 +207,236 @@
                 ماموریت‌ها
               </h3>
             </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- ماموریت ۱: تکمیل پروفایل بیوتی -->
               <div
-                v-for="mission in missions"
-                :key="mission.id"
                 class="relative bg-white border border-gray-200/90 rounded-xl p-4 shadow-2xs flex flex-col justify-between overflow-hidden"
               >
+                <div
+                  class="absolute top-0 left-4 bg-[#533470] text-white text-[11px] font-bold px-3.5 py-1 rounded-b-md shadow-xs"
+                >
+                  ۸ سکه
+                </div>
+
                 <div class="flex items-center justify-between gap-4 mt-4">
                   <div
-                    class="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-gray-100 flex items-center justify-center border border-gray-100"
+                    class="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-gray-100 border border-gray-100"
                   >
                     <img
-                      v-if="mission.id === 'beauty'"
                       src="/images/beauty-profile.svg"
                       alt="پروفایل بیوتی"
                       class="w-full h-full object-cover"
+                      onerror="
+                        this.src =
+                          'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80'
+                      "
                     />
-                    <UserCheck v-else class="w-8 h-8 text-gray-500" />
                   </div>
                   <div class="space-y-1.5 text-right flex-1">
                     <h4 class="font-bold text-xs sm:text-sm text-gray-900">
-                      {{ mission.title }}
+                      تکمیل پروفایل بیوتی
                     </h4>
                     <p class="text-[11px] text-gray-500 leading-relaxed">
-                      {{ mission.description }}
+                      پروفایل بیوتی خود را تکمیل کنید و امتیاز هدیه‌تون رو
+                      دریافت کنید.
                     </p>
                   </div>
                 </div>
-                <div class="pt-4 flex flex-wrap items-center justify-end gap-2">
-                  <template v-if="mission.id === 'beauty'">
-                    <span
-                      v-if="isLoading(beautySelections)"
-                      role="status"
-                      class="text-[11px] text-gray-500"
-                    >
-                      در حال بررسی انتخاب‌ها…
-                    </span>
-                    <span
-                      v-else-if="
-                        beautySelections.status === 'success' &&
-                        beautySelections.data.has_selections
-                      "
-                      class="text-[11px] text-gray-600"
-                    >
-                      انتخاب‌هایی ثبت شده‌اند
-                    </span>
-                    <template v-else-if="beautySelections.status === 'error'">
-                      <span role="alert" class="text-[11px] text-red-700">{{
-                        beautySelections.error
-                      }}</span>
-                      <button
-                        type="button"
-                        class="text-[11px] text-[#533470] underline cursor-pointer"
-                        @click="loadBeautySelections"
-                      >
-                        تلاش دوباره
-                      </button>
-                    </template>
-                  </template>
-                  <NuxtLink
-                    :to="mission.to"
-                    class="inline-block border border-[#533470] text-[#533470] hover:bg-[#533470] hover:text-white px-5 py-1.5 rounded-lg text-xs font-bold transition duration-200"
+
+                <div class="pt-4 text-left">
+                  <button
+                    @click="openBeautyModal"
+                    class="border border-[#533470] text-[#533470] hover:bg-[#533470] hover:text-white px-5 py-1.5 rounded-lg text-xs font-bold transition duration-200 cursor-pointer"
                   >
                     {{
-                      mission.id === "beauty" &&
-                      beautySelections.data?.has_selections
-                        ? "مشاهده انتخاب‌ها"
-                        : mission.action
+                      hasBeautySelections ? "ویرایش انتخاب‌ها" : "تکمیل کنید"
                     }}
-                  </NuxtLink>
+                  </button>
+                </div>
+              </div>
+
+              <!-- ماموریت ۲: تکمیل اطلاعات شخصی -->
+              <div
+                class="relative bg-white border border-gray-200/90 rounded-xl p-4 shadow-2xs flex flex-col justify-between overflow-hidden"
+              >
+                <div
+                  class="absolute top-0 left-4 bg-[#533470] text-white text-[11px] font-bold px-3.5 py-1 rounded-b-md shadow-xs"
+                >
+                  ۷ سکه
+                </div>
+
+                <div class="flex items-center justify-between gap-4 mt-4">
+                  <div
+                    class="w-20 h-20 rounded-xl bg-gray-100/90 flex items-center justify-center shrink-0 border border-gray-100"
+                  >
+                    <UserCheck class="w-8 h-8 text-gray-500" />
+                  </div>
+                  <div class="space-y-1.5 text-right flex-1">
+                    <h4 class="font-bold text-xs sm:text-sm text-gray-900">
+                      تکمیل اطلاعات شخصی
+                    </h4>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">
+                      شماره و تاریخ تولد خود را تکمیل کنید.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="pt-4 text-left">
+                  <button
+                    @click="handleMissionAction('personal')"
+                    class="border border-[#533470] text-[#533470] hover:bg-[#533470] hover:text-white px-5 py-1.5 rounded-lg text-xs font-bold transition duration-200 cursor-pointer"
+                  >
+                    تکمیل کنید
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <section
-          v-else-if="activeList"
-          :key="activeTab"
-          class="space-y-3"
-          :aria-label="listConfig[activeTab].title"
-        >
-          <h3 class="font-bold text-sm text-gray-900">
-            {{ listConfig[activeTab].title }}
-          </h3>
-          <p
-            v-if="isLoading(activeList)"
-            role="status"
-            class="rounded-xl bg-white p-4 text-sm text-gray-600"
-          >
-            در حال بارگذاری…
-          </p>
-          <div
-            v-else-if="activeList.status === 'error'"
-            class="flex flex-wrap items-center gap-3 rounded-xl bg-white p-4 text-sm text-red-700"
-          >
-            <p role="alert">{{ activeList.error }}</p>
-            <button
-              type="button"
-              class="underline cursor-pointer"
-              @click="loadList(activeTab, activeList.requestedPage)"
+        <!-- تب ۲: جایزه‌های دریافتی (مزایای استفاده شده) -->
+        <div v-else-if="activeTab === 'rewards'" class="space-y-4">
+          <div v-if="usagesPending" class="flex justify-center py-12">
+            <SharedLoadingSpinner size="lg" />
+          </div>
+          <div v-else-if="usagesData?.data?.length" class="space-y-3">
+            <div
+              v-for="item in usagesData.data"
+              :key="item.id"
+              class="bg-white border border-gray-200 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs"
             >
-              تلاش دوباره
+              <div class="space-y-1">
+                <span class="font-bold text-gray-900 text-sm">
+                  {{
+                    item.benefit_type === "free_shipping"
+                      ? "ارسال رایگان"
+                      : "تخفیف خرید"
+                  }}
+                </span>
+                <p class="text-gray-500">
+                  دوره: {{ item.period }} | سطح: {{ item.level }}
+                </p>
+                <p v-if="item.order" class="text-gray-400">
+                  سفارش #{{ item.order.id }} - وضعیت:
+                  {{ item.order.status_label }}
+                </p>
+              </div>
+              <div class="text-left font-bold text-[#533470]">
+                {{
+                  item.amount > 0 ? formatNumber(item.amount) + " تومان" : "-"
+                }}
+              </div>
+            </div>
+          </div>
+          <div v-else class="text-center py-12 text-gray-400 text-sm">
+            هیچ مزیت استفاده‌شده‌ای ثبت نشده است.
+          </div>
+        </div>
+
+        <!-- تب ۳: تاریخچه سکه‌های دریافتی -->
+        <div v-else-if="activeTab === 'history'" class="space-y-4">
+          <div v-if="transactionsPending" class="flex justify-center py-12">
+            <SharedLoadingSpinner size="lg" />
+          </div>
+          <div v-else-if="transactionsData?.data?.length" class="space-y-3">
+            <div
+              v-for="tx in transactionsData.data"
+              :key="tx.id"
+              class="bg-white border border-gray-200 rounded-xl p-4 flex justify-between items-center text-xs"
+            >
+              <div class="space-y-1">
+                <div class="font-bold text-gray-900 text-sm">
+                  {{ tx.title }}
+                </div>
+                <div class="text-gray-500">{{ tx.description || "-" }}</div>
+              </div>
+              <div
+                class="font-extrabold text-sm px-3 py-1 rounded-lg"
+                :class="
+                  tx.type === 'increase'
+                    ? 'bg-green-50 text-green-700'
+                    : 'bg-red-50 text-red-700'
+                "
+              >
+                {{ tx.type === "increase" ? "+" : "" }}{{ tx.points }} سکه
+              </div>
+            </div>
+          </div>
+          <div v-else class="text-center py-12 text-gray-400 text-sm">
+            تاریخچه‌ای یافت نشد.
+          </div>
+        </div>
+
+        <!-- تب ۴: پرسش‌های متداول -->
+        <div v-else class="text-center py-12 text-gray-400 text-sm">
+          پرسش‌های متداول به زودی اضافه خواهند شد...
+        </div>
+      </div>
+    </div>
+
+    <!-- مودال تکمیل پروفایل بیوتی (طراحی دو ستونی مطابق طرح) -->
+    <div
+      v-if="showBeautyModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+    >
+      <div
+        class="bg-white rounded-2xl w-full max-w-lg p-6 space-y-6 relative shadow-xl"
+        dir="rtl"
+      >
+        <!-- دکمه بستن -->
+        <button
+          @click="showBeautyModal = false"
+          class="absolute left-4 top-4 text-gray-400 hover:text-gray-650 cursor-pointer"
+        >
+          <X class="w-5 h-5" />
+        </button>
+
+        <h3 class="text-base font-bold text-gray-900 text-center">
+          تکمیل پروفایل بیوتی
+        </h3>
+
+        <!-- لودینگ مشخصات سیستمی -->
+        <div v-if="systemSpecsLoading" class="flex justify-center py-8">
+          <SharedLoadingSpinner size="md" />
+        </div>
+
+        <div v-else class="space-y-5">
+          <!-- فرم دو ستونی فیلدها -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div
+              v-for="spec in systemSpecs"
+              :key="spec.id"
+              class="flex flex-col gap-1.5"
+            >
+              <label class="text-xs font-bold text-gray-700"
+                >{{ spec.title }}:</label
+              >
+              <select
+                v-model="selectedSelections[spec.id]"
+                class="border border-gray-300 rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-[#533470] bg-white h-10"
+              >
+                <option value="" disabled>انتخاب کنید</option>
+                <option
+                  v-for="val in spec.values"
+                  :key="val.id"
+                  :value="val.id"
+                >
+                  {{ val.value }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="pt-2">
+            <button
+              @click="submitBeautyProfile"
+              :disabled="submittingBeauty"
+              class="w-full bg-[#533470] hover:bg-[#43275b] text-white py-3 rounded-xl font-bold text-xs transition duration-200 cursor-pointer disabled:opacity-50 shadow-sm"
+            >
+              {{ submittingBeauty ? "در حال ذخیره..." : "تایید" }}
             </button>
           </div>
-          <template v-else>
-            <p
-              v-if="!activeList.data.data.length"
-              class="rounded-xl bg-white p-4 text-sm text-gray-600"
-            >
-              {{ listConfig[activeTab].empty }}
-            </p>
-            <ul v-else class="space-y-2">
-              <li
-                v-for="item in activeList.data.data"
-                :key="item.id"
-                class="flex items-start justify-between gap-4 rounded-xl border border-gray-200 bg-white p-4"
-              >
-                <div class="min-w-0 space-y-1 text-xs text-gray-600">
-                  <template v-if="activeTab === 'history'">
-                    <p class="font-bold text-sm text-gray-900">
-                      {{ item.title }}
-                    </p>
-                    <p v-if="item.description" class="break-words">
-                      {{ item.description }}
-                    </p>
-                    <p>
-                      {{ sourceLabels[item.source] ?? "سایر" }} ·
-                      {{ formatDate(item.created_at) }}
-                    </p>
-                  </template>
-                  <template v-else>
-                    <p class="font-bold text-sm text-gray-900">
-                      {{ benefitLabels[item.benefit_type] ?? "مزیت باشگاه" }}
-                    </p>
-                    <p>
-                      {{ tierLabel(item.level) }} ·
-                      {{ formatDate(item.created_at) }}
-                    </p>
-                    <p v-if="item.order?.id != null || item.order_id != null">
-                      سفارش شماره
-                      {{ formatNumber(item.order?.id ?? item.order_id)
-                      }}<template v-if="item.order?.status_label">
-                        · {{ item.order.status_label }}</template
-                      >
-                    </p>
-                  </template>
-                </div>
-                <div
-                  v-if="activeTab === 'history'"
-                  class="shrink-0 text-xs font-bold"
-                  :class="item.points < 0 ? 'text-red-700' : 'text-emerald-700'"
-                >
-                  <bdi>{{ formatPoints(item.points) }}</bdi> سکه
-                </div>
-                <div
-                  v-else-if="item.benefit_type === 'discount'"
-                  class="shrink-0 text-xs font-bold text-[#533470]"
-                >
-                  مبلغ تخفیف: <bdi>{{ formatNumber(item.amount) }}</bdi>
-                </div>
-              </li>
-            </ul>
-            <nav
-              v-if="activeList.data.last_page > 1"
-              aria-label="صفحه‌بندی"
-              class="flex items-center justify-between gap-2 text-xs sm:text-sm"
-            >
-              <button
-                type="button"
-                :disabled="activeList.data.current_page <= 1"
-                class="rounded-lg border border-gray-200 bg-white px-3 py-2 disabled:opacity-40"
-                @click="changePage(-1)"
-              >
-                صفحه قبل
-              </button>
-              <span
-                >صفحه {{ formatNumber(activeList.data.current_page) }} از
-                {{ formatNumber(activeList.data.last_page) }}</span
-              >
-              <button
-                type="button"
-                :disabled="
-                  activeList.data.current_page >= activeList.data.last_page
-                "
-                class="rounded-lg border border-gray-200 bg-white px-3 py-2 disabled:opacity-40"
-                @click="changePage(1)"
-              >
-                صفحه بعد
-              </button>
-            </nav>
-          </template>
-        </section>
-
-        <div
-          v-else
-          class="text-center py-12 text-gray-500 text-sm bg-gray-50 rounded-xl border border-dashed border-gray-200"
-        >
-          پرسش‌های متداول هنوز در این بخش منتشر نشده‌اند.
         </div>
       </div>
     </div>
@@ -438,13 +444,18 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onScopeDispose, reactive, ref, watch } from "vue";
-import { Wallet, BarChart2, Calendar, UserCheck } from "lucide-vue-next";
+import { ref, onMounted } from "vue";
+import { Wallet, BarChart2, Calendar, UserCheck, X } from "lucide-vue-next";
+import { useApi } from "~/composables/api/useApi";
 
-definePageMeta({ middleware: "auth", layout: "panel" });
+definePageMeta({
+  middleware: "auth",
+  layout: "panel",
+});
 
 const { $api } = useNuxtApp();
-const base = "/front/club"; // $api خودش /api/v1 را به مسیر اضافه می‌کند.
+const { getUserProfile } = useApi();
+
 const activeTab = ref("club");
 const clubTabs = [
   { id: "club", title: "سرمه کلاب" },
@@ -453,243 +464,177 @@ const clubTabs = [
   { id: "faq", title: "پرسش‌های متداول" },
 ];
 
-// جدول عمومی سطح‌بندی، مطابق طرح فعلی؛ سطح فعال از summary دریافت می‌شود.
-const tiers = [
-  {
-    id: "bronze",
-    label: "سطح برنز",
-    icon: "/icons/coinB.svg",
-    range: "(۰ تا ۵۰۰)",
-    discount: "۲٪",
-    shipping: "–",
-  },
-  {
-    id: "gold",
-    label: "سطح گلد",
-    icon: "/icons/coin.png",
-    range: "(۵۰۰ تا ۱۰۰۰)",
-    discount: "۳٪",
-    shipping: "یک ارسال رایگان در ماه",
-  },
-  {
-    id: "platinum",
-    label: "سطح پلاتینیوم",
-    icon: "/icons/coinN.svg",
-    range: "(۱۰۰۰ تا ۲۰۰۰)",
-    discount: "۴٪",
-    shipping: "دو ارسال رایگان در ماه",
-  },
-];
-const tierRows = [
-  { field: "range", label: "تعداد سکه مورد نیاز" },
-  { field: "discount", label: "درصد تخفیف" },
-  { field: "shipping", label: "حمل و نقل" },
-];
-const missions = [
-  {
-    id: "beauty",
-    title: "تکمیل پروفایل بیوتی",
-    description: "پروفایل بیوتی خود را تکمیل کنید.",
-    to: "/panel/beauty-profile",
-    action: "تکمیل کنید",
-  },
-  {
-    id: "personal",
-    title: "تکمیل اطلاعات شخصی",
-    description:
-      "اطلاعات شخصی خود را از بخش اطلاعات کاربری مشاهده یا ویرایش کنید.",
-    to: "/panel",
-    action: "مشاهده اطلاعات",
-  },
-];
-const sourceLabels = {
-  order: "سفارش",
-  posOrder: "خرید حضوری",
-  profile: "پروفایل",
-  manual: "ثبت دستی",
-  mission: "ماموریت",
-  reversal: "برگشت امتیاز",
-};
-const benefitLabels = {
-  discount: "تخفیف سفارش",
-  free_shipping: "ارسال رایگان",
-};
-const listConfig = {
-  history: {
-    endpoint: "transactions",
-    title: "تاریخچه سکه‌ها",
-    empty: "هنوز تراکنش سکه‌ای ثبت نشده است.",
-  },
-  rewards: {
-    endpoint: "usagesFront",
-    title: "مزایای استفاده‌شده باشگاه",
-    empty: "هنوز از مزایای باشگاه استفاده نکرده‌اید.",
-  },
-};
+// داده‌های باشگاه
+const summaryData = ref(null);
+const summaryPending = ref(true);
 
-const createResource = () => ({
-  data: null,
-  status: "idle",
-  error: "",
-  requestedPage: 1,
-});
-const summary = reactive(createResource());
-const shipping = reactive(createResource());
-const beautySelections = reactive(createResource());
-const lists = reactive({
-  history: createResource(),
-  rewards: createResource(),
-});
-const activeList = computed(() => lists[activeTab.value] ?? null);
-const currentTier = computed(() =>
-  tiers.find((tier) => tier.id === summary.data?.level),
-);
-const tierLabel = (id) => tiers.find((tier) => tier.id === id)?.label ?? "—";
-const isLoading = (resource) =>
-  resource.status === "idle" || resource.status === "pending";
+const transactionsData = ref(null);
+const transactionsPending = ref(false);
 
-const numberFormatter = new Intl.NumberFormat("fa-IR");
-const pointsFormatter = new Intl.NumberFormat("fa-IR", {
-  signDisplay: "exceptZero",
-});
-const dateFormatter = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-  timeZone: "Asia/Tehran",
-});
-const formatNumber = (value) =>
-  value == null || !Number.isFinite(Number(value))
-    ? "—"
-    : numberFormatter.format(value);
-const formatPoints = (value) =>
-  value == null || !Number.isFinite(Number(value))
-    ? "—"
-    : pointsFormatter.format(value);
-function formatDate(value) {
-  if (!value) return "—";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "—" : dateFormatter.format(date);
-}
+const usagesData = ref(null);
+const usagesPending = ref(false);
 
-const shippingLabel = computed(() => {
-  // پاسخ endpoint اختصاصی اولویت دارد؛ summary فقط تا دریافت آن یا در صورت خطا استفاده می‌شود.
-  const status =
-    shipping.data ??
-    (summary.data && {
-      allowed: summary.data.can_use_free_shipping,
-      remaining: summary.data.free_shipping_remaining,
-    });
-  if (!status)
-    return isLoading(shipping) || isLoading(summary)
-      ? "در حال بررسی…"
-      : "نامشخص";
-  const remaining = `${formatNumber(status.remaining)} ارسال باقی‌مانده در ماه جاری`;
-  return status.allowed ? remaining : `در دسترس نیست (${remaining})`;
-});
+// اطلاعات پروفایل کاربر، شامل تاریخ عضویت
+const profileData = ref(null);
+const profilePending = ref(false);
 
-const abortController = new AbortController();
-onScopeDispose(() => abortController.abort());
-
-async function request(resource, path, validate, fallback, params) {
-  if (resource.status === "pending" || abortController.signal.aborted) return;
-  resource.status = "pending";
-  resource.error = "";
+const fetchProfile = async () => {
+  profilePending.value = true;
   try {
-    const { data } = await $api.get(path, {
-      params,
-      signal: abortController.signal,
-    });
-    if (abortController.signal.aborted) return;
-    if (!validate(data)) throw new Error("Unexpected club API response");
-    resource.data = data;
-    resource.status = "success";
-  } catch (error) {
-    if (abortController.signal.aborted) return;
-    resource.data = null;
-    resource.status = "error";
-    resource.error =
-      error.response?.status === 401
-        ? "برای دریافت اطلاعات باشگاه دوباره وارد حساب کاربری‌تان شوید."
-        : fallback;
+    profileData.value = await getUserProfile();
+  } catch (e) {
+    console.error("Error fetching user profile", e);
+    profileData.value = null;
+  } finally {
+    profilePending.value = false;
   }
-}
+};
 
-const isSummary = (data) =>
-  !!data &&
-  Number.isFinite(data.total_points) &&
-  typeof data.level === "string" &&
-  Number.isFinite(data.discount_percent) &&
-  Number.isInteger(data.free_shipping_remaining) &&
-  typeof data.can_use_free_shipping === "boolean";
-const isShipping = (data) =>
-  !!data &&
-  typeof data.allowed === "boolean" &&
-  Number.isInteger(data.remaining);
-const isPage = (data) =>
-  !!data &&
-  Array.isArray(data.data) &&
-  Number.isInteger(data.current_page) &&
-  data.current_page >= 1 &&
-  Number.isInteger(data.last_page) &&
-  data.last_page >= 1;
+// مودال بیوتی
+const showBeautyModal = ref(false);
+const systemSpecs = ref([]);
+const systemSpecsLoading = ref(false);
+const selectedSelections = ref({});
+const hasBeautySelections = ref(false);
+const submittingBeauty = ref(false);
 
-const loadSummary = () =>
-  request(summary, `${base}/summary`, isSummary, "اطلاعات باشگاه دریافت نشد.");
-const loadShipping = () =>
-  request(
-    shipping,
-    `${base}/can-free-shipping`,
-    isShipping,
-    "وضعیت ارسال رایگان تأیید نشد.",
-  );
-// has_selections صرفاً وجود انتخاب ثبت‌شده را نشان می‌دهد، نه تکمیل مأموریت یا واریز سکه.
-const loadBeautySelections = () =>
-  request(
-    beautySelections,
-    "/specifications/my-selections",
-    (data) =>
-      data?.success === true && typeof data.has_selections === "boolean",
-    "وضعیت انتخاب‌های پروفایل بیوتی دریافت نشد.",
-  );
+const fetchSummary = async () => {
+  try {
+    const res = await $api.get("/front/club/summary");
+    summaryData.value = res.data || res;
+  } catch (e) {
+    console.error("Error fetching club summary", e);
+  } finally {
+    summaryPending.value = false;
+  }
+};
 
-function loadList(tab, page = 1) {
-  const config = listConfig[tab];
-  const resource = lists[tab];
-  if (!config || !resource || resource.status === "pending") return;
-  if (
-    !Number.isInteger(page) ||
-    page < 1 ||
-    (resource.data && page > resource.data.last_page)
-  )
+const fetchTransactions = async () => {
+  transactionsPending.value = true;
+  try {
+    const res = await $api.get("/front/club/transactions");
+    transactionsData.value = res.data || res;
+  } catch (e) {
+    console.error("Error fetching transactions", e);
+  } finally {
+    transactionsPending.value = false;
+  }
+};
+
+const fetchUsages = async () => {
+  usagesPending.value = true;
+  try {
+    const res = await $api.get("/front/club/usagesFront");
+    usagesData.value = res.data || res;
+  } catch (e) {
+    console.error("Error fetching usages", e);
+  } finally {
+    usagesPending.value = false;
+  }
+};
+
+const checkMyBeautySelections = async () => {
+  try {
+    const response = await $api.get("/specifications/my-selections");
+    const res = response.data || response;
+
+    if (res.has_selections && Array.isArray(res.data)) {
+      hasBeautySelections.value = true;
+      res.data.forEach((item) => {
+        selectedSelections.value[item.specification_id] =
+          item.specification_value_id;
+      });
+    }
+  } catch (e) {
+    console.error("Error fetching my-selections", e);
+  }
+};
+
+const openBeautyModal = async () => {
+  showBeautyModal.value = true;
+  if (systemSpecs.value.length === 0) {
+    systemSpecsLoading.value = true;
+    try {
+      const response = await $api.get("/specifications/system");
+      const res = response.data || response;
+      systemSpecs.value = Array.isArray(res.data) ? res.data : [];
+    } catch (e) {
+      console.error("Error fetching system specifications", e);
+    } finally {
+      systemSpecsLoading.value = false;
+    }
+  }
+};
+
+const submitBeautyProfile = async () => {
+  const selectionsArray = Object.entries(selectedSelections.value)
+    .filter(([_, val_id]) => val_id !== undefined && val_id !== "")
+    .map(([spec_id, val_id]) => ({
+      specification_id: Number(spec_id),
+      specification_value_id: Number(val_id),
+    }));
+
+  if (selectionsArray.length === 0) {
+    alert("لطفاً حداقل یک مورد را انتخاب کنید.");
     return;
-  resource.requestedPage = page;
-  // URLهای paginator را دنبال نمی‌کنیم تا درخواست از همان proxy و interceptor بگذرد.
-  return request(
-    resource,
-    `${base}/${config.endpoint}`,
-    isPage,
-    `${config.title} دریافت نشد.`,
-    { page },
-  );
-}
+  }
 
-function changePage(offset) {
-  if (activeList.value?.status !== "success") return;
-  return loadList(activeTab.value, activeList.value.data.current_page + offset);
-}
+  submittingBeauty.value = true;
+  try {
+    await $api.post("/specifications/user-selections", {
+      selections: selectionsArray,
+    });
+    hasBeautySelections.value = true;
+    showBeautyModal.value = false;
+    await fetchSummary();
+  } catch (e) {
+    console.error("Error submitting user selections", e);
+    alert(e.response?.data?.message || "خطا در ثبت اطلاعات");
+  } finally {
+    submittingBeauty.value = false;
+  }
+};
+
+const getTierLabel = (level) => {
+  switch (level) {
+    case "gold":
+      return "سطح گلد";
+    case "platinum":
+      return "سطح پلاتینیوم";
+    default:
+      return "سطح برنز";
+  }
+};
+
+const formatNumber = (num) => {
+  if (num === null || num === undefined) return "۰";
+  return Number(num).toLocaleString("fa-IR");
+};
+
+const formatMembershipDate = (date) => {
+  if (!date) return "-";
+  const parsedDate = new Date(date);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "-";
+  }
+  return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(parsedDate);
+};
+
+const handleMissionAction = (type) => {
+  if (type === "personal") {
+    navigateTo("/panel");
+  }
+};
 
 onMounted(() => {
-  // در پروژه فعلی توکن مرورگر از localStorage خوانده می‌شود.
-  void loadSummary();
-  void loadShipping();
-  void loadBeautySelections();
-  watch(
-    activeTab,
-    (tab) => {
-      if (lists[tab]?.status === "idle") void loadList(tab);
-    },
-    { immediate: true },
-  );
+  fetchSummary();
+  fetchProfile();
+  checkMyBeautySelections();
+  fetchTransactions();
+  fetchUsages();
 });
 </script>

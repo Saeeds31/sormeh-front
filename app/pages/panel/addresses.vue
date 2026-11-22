@@ -1,6 +1,6 @@
 <!-- app/pages/panel/addresses.vue -->
 <template>
-  <div class="p-8 bg-gray-100 rounded-xl">
+  <div class="md:p-8 md:bg-gray-100 rounded-xl">
     <div class="flex justify-between items-center pb-4 border-b">
       <h3 class="font-bold text-xl">آدرس ها</h3>
 

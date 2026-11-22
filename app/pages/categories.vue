@@ -1,9 +1,9 @@
 <!-- app/pages/categories.vue -->
 <template>
-  <div class="min-h-screen bg-white flex flex-col md:hidden" dir="rtl">
+  <div class="min-h-screen bg-white flex flex-col z-50 md:hidden" dir="rtl">
     <!-- هدر بالای صفحه و سرچ -->
     <header
-      class="sticky top-0 z-20 bg-white px-4 pt-0 pb-2 border-b border-gray-100 space-y-3"
+      class="sticky top-0 z-50 bg-white px-4 pt-0 pb-2 border-b border-gray-100 space-y-3"
     >
       <div class="flex items-center gap-3">
         <!-- دکمه بازگشت -->

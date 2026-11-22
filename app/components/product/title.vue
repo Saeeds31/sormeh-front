@@ -20,7 +20,7 @@
           aria-label="علاقه‌مندی"
           @click="emit('toggle-wishlist')"
         >
-          <IconFavLineWhite />
+          <IconFavLineWhite class="w-6" />
         </button>
 
         <!-- دکمه اشتراک‌گذاری -->
@@ -30,7 +30,7 @@
           aria-label="اشتراک‌گذاری"
           @click="shareContent"
         >
-          <iconShared />
+          <IconShared class="w-6" />
         </button>
       </div>
     </div>

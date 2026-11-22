@@ -1,4 +1,4 @@
-<!-- pages/products/index.js -->
+<!-- pages/products/index.vue -->
 <template>
   <main class="container mx-auto" dir="rtl">
     <sharedBreadCrumb :items="[{ label: 'محصولات', href: '/products' }]" />
@@ -105,10 +105,11 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useApi } from "@/composables/api/useApi";
 import { usePageLoading } from "@/composables/usePageLoading";
+import { useCategoryStore } from "~/store/menu.js";
 import ProductCardHorizontal from "~/components/shared/ProductCardHorizontal.vue";
 import { X } from "lucide-vue-next";
 const { getProducts, getBase } = useApi();
@@ -116,6 +117,52 @@ const { fetchWishlist } = useWishlist();
 const { loadPageWithBase } = usePageLoading();
 const route = useRoute();
 const router = useRouter();
+
+const categoryStore = useCategoryStore();
+await categoryStore.fetchMenuData();
+
+/* ------------------------------------------------------------------
+   slug ↔ id  (URL با slug کار می‌کند، فیلترها و API با id)
+------------------------------------------------------------------ */
+const allCategories = computed(() => {
+  const list =
+    categoryStore.filters?.data?.categories ||
+    categoryStore.filters?.categories ||
+    [];
+
+  const flat = [];
+  const seen = new Set(); // جلوگیری از حلقه/تکرار در درخت خرابِ API
+
+  const walk = (items) => {
+    (items || []).forEach((cat) => {
+      if (!cat || seen.has(cat.id)) return;
+      seen.add(cat.id);
+      flat.push(cat);
+      walk(cat.sub_categories || cat.children || cat.all_children);
+    });
+  };
+  walk(list);
+  return flat;
+});
+
+const findCategory = (value) =>
+  allCategories.value.find(
+    (cat) =>
+      String(cat.slug) === String(value) || String(cat.id) === String(value),
+  );
+
+const readCategories = (query) => {
+  if (query.category) {
+    return String(query.category)
+      .split(",")
+      .map((slug) => findCategory(slug)?.id)
+      .filter((id) => id !== undefined && id !== null);
+  }
+  if (query.category_ids) {
+    return String(query.category_ids).split(",");
+  }
+  return [];
+};
 
 const activeFilters = computed(() => {
   const tags = [];
@@ -139,6 +186,220 @@ const activeFilters = computed(() => {
 });
 
 // 3. متد حذف فیلتر
+async function removeFilter(filter) {
+  if (filter.key === "search") filters.value.search = "";
+  if (filter.key === "inStock") filters.value.inStock = false;
+  if (filter.key === "categories") filters.value.categories = [];
+  if (filter.key === "price") filters.value.priceRange = ["", ""];
+
+  await applyFilters();
+}
+function clearAllFilters() {
+  filters.value.search = "";
+  filters.value.inStock = false;
+  filters.value.categories = [];
+  filters.value.priceRange = ["", ""];
+  applyFilters();
+}
+
+const filters = ref({
+  search: route.query.search || "",
+  categories: readCategories(route.query),
+  weights: [],
+  inStock: route.query.in_stock === "1",
+  priceRange: [
+    route.query.min_price ? Number(route.query.min_price) : "",
+    route.query.max_price ? Number(route.query.max_price) : "",
+  ],
+});
+
+// id → slug برای نوشتن در URL
+const selectedCategorySlugs = computed(() =>
+  filters.value.categories.map((id) => findCategory(id)?.slug).filter(Boolean),
+);
+
+const sortBy = ref(route.query.sort_by || "newest");
+const currentPage = ref(Number(route.query.page) || 1);
+
+const apiParams = computed(() => ({
+  search: filters.value.search || undefined,
+  in_stock: filters.value.inStock ? 1 : undefined,
+  min_price: filters.value.priceRange[0] || undefined,
+  max_price: filters.value.priceRange[1] || undefined,
+  category_ids: filters.value.categories
+    ? filters.value.categories.join(",")
+    : undefined,
+  weight: filters.value.weights.length
+    ? filters.value.weights.join(",")
+    : undefined,
+  sort_by: sortBy.value || undefined,
+  page: currentPage.value || undefined,
+}));
+
+const pending = ref(true);
+const error = ref(null);
+const data = ref(null);
+
+try {
+  await loadPageWithBase(
+    [
+      async () => {
+        const response = await getProducts(apiParams.value);
+        data.value = response;
+        return response;
+      },
+      async () => await fetchWishlist(),
+    ],
+    "در حال بارگذاری محصولات...",
+    getBase,
+  );
+} catch (err) {
+  error.value = err;
+  console.error("خطا در بارگذاری محصولات:", err);
+} finally {
+  pending.value = false;
+}
+
+const products = computed(() => data.value?.data?.data || []);
+const paginationData = computed(() => data.value?.data || {});
+const totalPages = computed(() => paginationData.value.last_page || 1);
+
+const refresh = async () => {
+  pending.value = true;
+  error.value = null;
+  try {
+    await loadPageWithBase(
+      [
+        async () => {
+          const response = await getProducts(apiParams.value);
+          data.value = response;
+          return response;
+        },
+      ],
+      "در حال بارگذاری مجدد...",
+    );
+  } catch (err) {
+    error.value = err;
+  } finally {
+    pending.value = false;
+  }
+};
+
+let skipPageWatch = false;
+
+async function applyFilters() {
+  const query = {};
+
+  if (apiParams.value.search) query.search = apiParams.value.search;
+  if (apiParams.value.in_stock) query.in_stock = apiParams.value.in_stock;
+  if (apiParams.value.min_price) query.min_price = apiParams.value.min_price;
+  if (apiParams.value.max_price) query.max_price = apiParams.value.max_price;
+
+  // در URL با slug می‌نویسیم؛ اگر برای بعضی idها slug پیدا نشد،
+  // به‌جای «هیچی نشدن» با category_ids می‌فرستیم تا فیلتر از دست نرود.
+  const ids = filters.value.categories || [];
+  const slugs = selectedCategorySlugs.value;
+  if (slugs.length === ids.length && slugs.length > 0) {
+    query.category = slugs.join(",");
+  } else if (ids.length > 0) {
+    query.category_ids = ids.join(",");
+  }
+
+  if (filters.value.weights.length)
+    query.weight = filters.value.weights.join(",");
+  if (sortBy.value && sortBy.value !== "newest") query.sort_by = sortBy.value;
+
+  skipPageWatch = true;
+  currentPage.value = 1;
+  await nextTick();
+  skipPageWatch = false;
+
+  await router.push({ query });
+}
+
+let syncingFromRoute = false;
+
+watch(sortBy, () => {
+  if (syncingFromRoute) return;
+  applyFilters();
+});
+
+watch(currentPage, async (newPage) => {
+  if (skipPageWatch) return;
+
+  const query = { ...route.query };
+  if (newPage > 1) {
+    query.page = newPage;
+  } else {
+    delete query.page;
+  }
+  await router.push({ query });
+});
+
+watch(
+  () => route.query,
+  (newQuery) => {
+    syncingFromRoute = true;
+
+    filters.value.search = newQuery.search || "";
+    filters.value.inStock = newQuery.in_stock === "1";
+    filters.value.categories = readCategories(newQuery);
+    filters.value.weights = newQuery.weight
+      ? newQuery.weight.split(",").map(Number)
+      : [];
+    filters.value.priceRange = [
+      newQuery.min_price ? Number(newQuery.min_price) : "",
+      newQuery.max_price ? Number(newQuery.max_price) : "",
+    ];
+    sortBy.value = newQuery.sort_by || "newest";
+    currentPage.value = Number(newQuery.page) || 1;
+
+    nextTick(() => {
+      syncingFromRoute = false;
+    });
+
+    refresh();
+  },
+);
+</script>
+
+<!-- <script setup>
+import { computed, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useApi } from "@/composables/api/useApi";
+import { usePageLoading } from "@/composables/usePageLoading";
+import { useCategoryStore } from "~/store/menu.js";
+import ProductCardHorizontal from "~/components/shared/ProductCardHorizontal.vue";
+import { X } from "lucide-vue-next";
+const { getProducts, getBase } = useApi();
+const { fetchWishlist } = useWishlist();
+const { loadPageWithBase } = usePageLoading();
+const route = useRoute();
+const router = useRouter();
+
+await useCategoryStore.fetchMenuData();
+
+const activeFilters = computed(() => {
+  const tags = [];
+
+  if (filters.value.search)
+    tags.push({ label: `جستجو: ${filters.value.search}`, key: "search" });
+  if (filters.value.inStock) tags.push({ label: "فقط موجود", key: "inStock" });
+  if (filters.value.categories.length > 0)
+    tags.push({
+      label: `دسته بندی (${filters.value.categories.length})`,
+      key: "categories",
+    });
+  if (filters.value.priceRange[0] || filters.value.priceRange[1]) {
+    tags.push({
+      label: `قیمت: ${filters.value.priceRange[0]} تا ${filters.value.priceRange[1]}`,
+      key: "price",
+    });
+  }
+
+  return tags;
+});
+
 async function removeFilter(filter) {
   if (filter.key === "search") filters.value.search = "";
   if (filter.key === "inStock") filters.value.inStock = false;
@@ -287,4 +548,4 @@ watch(
     refresh();
   },
 );
-</script>
+</script> -->

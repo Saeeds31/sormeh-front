@@ -1,5 +1,5 @@
 <template>
-  <div class="container !my-6 font-sans">
+  <div class="container !mb-6 font-sans">
     <div
       class="bg-[#D5CBEB]/60 backdrop-blur-md rounded-2xl p-4 sm:p-5 lg:p-6 border border-white/50 shadow-sm transition-all duration-500"
     >

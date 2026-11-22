@@ -1,6 +1,6 @@
 <!-- app/pages/panel/wallet/index.vue -->
 <template>
-  <div class="p-8 bg-gray-100 rounded-xl">
+  <div class="md:p-8 md:bg-gray-100 rounded-xl">
     <h3 class="font-bold text-xl pb-4 mb-4 border-b">کیف پول</h3>
 
     <!-- اطلاعات کیف پول -->

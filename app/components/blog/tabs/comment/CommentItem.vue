@@ -4,10 +4,10 @@
   >
     <!-- Avatar -->
     <figure class="flex-shrink-0 m-0 flex justify-center sm:block">
-      <img
+      <SharedAppImage
         :src="comment.avatar"
         :alt="comment.name"
-        class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border"
+        img-class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border"
       />
     </figure>
 

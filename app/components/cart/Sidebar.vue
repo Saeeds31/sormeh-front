@@ -29,7 +29,7 @@
           >
             <!-- ردیف بالای کارت: تصویر، مشخصات، دکمه‌های تعداد و حذف -->
             <div class="flex gap-3">
-              <img
+              <SharedAppImage
                 :src="resolveImage(item.image)"
                 :alt="item.title"
                 class="w-20 h-24 object-cover rounded-inner shrink-0"

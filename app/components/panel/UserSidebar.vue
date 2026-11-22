@@ -18,10 +18,24 @@
         <p class="font-bold text-[#222222] text-base">
           {{ userProfile?.full_name || "کاربر" }}
         </p>
+
         <p
           class="text-xs text-[#888888] [direction:ltr] font-medium text-right"
         >
           {{ userProfile?.mobile }}
+        </p>
+
+        <p
+          v-if="clubPoints !== null"
+          dir="rtl"
+          class="flex items-center gap-1 text-xs font-bold text-[#533470]"
+        >
+          <img
+            src="/icons/coin.png"
+            alt=""
+            class="h-4 w-4 shrink-0 object-contain"
+          />
+          <span>{{ formatPrice(clubPoints) }} سکه</span>
         </p>
       </div>
     </div>
@@ -85,7 +99,7 @@
 
 <script setup>
 import { useRoute, useRouter } from "vue-router";
-import { nextTick, ref, watch, computed } from "vue";
+import { nextTick, ref, watch, computed, onMounted } from "vue";
 import { useApi } from "@/composables/api/useApi";
 import {
   User,
@@ -110,6 +124,21 @@ const canReadWallet =
 const route = useRoute();
 const router = useRouter();
 const { getWallet } = useApi();
+const { $api } = useNuxtApp();
+const clubPoints = ref(null);
+
+onMounted(async () => {
+  if (!localStorage.getItem("auth-token")) return;
+
+  try {
+    const response = await $api.get("/front/club/summary");
+    const summary = response?.data ?? response;
+
+    clubPoints.value = summary?.total_points ?? null;
+  } catch (error) {
+    console.error("Failed to fetch club points in sidebar:", error);
+  }
+});
 
 const { data: walletData } = await useAsyncData(
   "userWallet",
