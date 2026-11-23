@@ -69,38 +69,17 @@
                       پارسیان
                     </span>
                     <div class="text-right">
-                      <span class="font-bold text-xs sm:text-sm text-gray-900 block">درگاه پرداخت پارسیان</span>
-                      <span class="text-xs text-gray-400">تمام کارت‌های عضو شتاب</span>
+                      <span class="font-bold text-xs sm:text-sm text-gray-900 block">ترب پی</span>
+                      <span class="text-xs text-gray-400">پرداخت به صورت 4 قسطه</span>
                     </div>
                   </div>
                   <div class="flex items-center gap-2">
                     <input type="radio" name="paymentOption" :checked="isGatewaySelected('parsian')"
-                      @change="selectGateway('parsian')" class="accent-emerald-500 w-4 h-4 cursor-pointer" />
+                      @change="selectGateway('torobpay')" class="accent-emerald-500 w-4 h-4 cursor-pointer" />
                   </div>
                 </label>
 
-                <!-- درگاه زرین پال -->
-                <label
-                  class="bg-white border rounded-xl p-3.5 flex items-center justify-between cursor-pointer transition shadow-xs"
-                  :class="isGatewaySelected('zarinpal')
-                    ? 'border-gray-800 ring-1 ring-gray-800'
-                    : 'border-gray-200'
-                    ">
-                  <div class="flex items-center gap-3">
-                    <span
-                      class="w-8 h-8 rounded-lg bg-yellow-50 flex items-center justify-center font-bold text-yellow-600 text-xs">
-                      زرین
-                    </span>
-                    <div class="text-right">
-                      <span class="font-bold text-xs sm:text-sm text-gray-900 block">درگاه پرداخت زرین‌پال</span>
-                      <span class="text-xs text-gray-400">تمام کارت‌های عضو شتاب</span>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <input type="radio" name="paymentOption" :checked="isGatewaySelected('zarinpal')"
-                      @change="selectGateway('zarinpal')" class="accent-emerald-500 w-4 h-4 cursor-pointer" />
-                  </div>
-                </label>
+           
 
                 <!-- کیف پول -->
                 <label v-if="wallet && wallet.balance"
