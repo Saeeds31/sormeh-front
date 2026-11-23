@@ -28,7 +28,8 @@ export const useContactLinks = (contact = {}) => {
   const rawPhone = digitsOnly(c.rawPhone || phone);
 
   // شناسهٔ پیش‌فرض همهٔ شبکه‌ها یکسان است؛ هرکدام جداگانه قابل تغییرند.
-  const instagramId = c.instagramId || "@sormeh.cosmetic__";
+  const instagramId =
+    c.instagramId || "https://www.instagram.com/sormeh.cosmetic_/?hl=en";
   const eitaaId = c.eitaaId || "@sormeh.cosmetic__";
   const rubikaId = c.rubikaId || "@sormeh.cosmetic__";
   const soroushId = c.soroushId || "@sormeh.cosmetic__";

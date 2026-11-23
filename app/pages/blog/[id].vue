@@ -11,27 +11,21 @@
       ]"
     />
 
-    <!-- Loading State -->
     <div v-if="pending" class="min-h-[60vh] flex items-center justify-center">
       <SharedLoadingSpinner size="lg" />
     </div>
 
-    <!-- Error State -->
     <div v-else-if="error && !article" class="text-center py-20 space-y-4">
       <p class="text-red-500 text-xl font-medium">خطا در بارگذاری مقاله</p>
       <button @click="refresh" class="btn px-6 py-2.5">دوباره تلاش کن</button>
     </div>
 
-    <!-- Article Detail Content -->
     <div
       v-else-if="article"
       class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start pt-4"
     >
-      <!-- Main Content Column (7 cols) -->
       <article class="lg:col-span-7 lg:col-start-1 min-w-0 space-y-6">
-        <!-- Article Header & Title -->
         <div class="space-y-4">
-          <!-- Title row with copy icon next to it -->
           <div class="flex items-start justify-between gap-4">
             <h1
               class="text-xl font-extrabold leading-relaxed text-strong lg:text-3xl flex-1"
@@ -49,18 +43,74 @@
           </div>
 
           <!-- Author and Meta info below the title -->
-          <div class="flex flex-wrap items-center gap-2 text-xs text-muted">
-            <span v-if="articleAuthor"> نویسنده: {{ articleAuthor }} </span>
-            <span v-if="articleAuthor && article.created_at">•</span>
-            <span v-if="article.created_at">
-              {{ formatDate(article.created_at) }}
-            </span>
-            <span v-if="article.views_count" class="flex items-center gap-1">
-              • {{ article.views_count }} بازدید
-            </span>
+          <div
+            class="flex justify-between items-center gap-1 text-xs text-muted"
+          >
+            <div v-if="articleAuthor" class="flex items-center gap-1">
+              <img
+                v-if="articleAuthorImage"
+                :src="articleAuthorImage"
+                :alt="`تصویر ${articleAuthor}`"
+                class="h-8 w-8 rounded-full object-cover border border-gray-200"
+                @error="handleAuthorImageError"
+              />
+
+              <span
+                v-else
+                class="flex h-8 w-8 items-center justify-center rounded-full bg-[#D5CBEB] text-[#4B3073]"
+                aria-hidden="true"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  class="h-5 w-5"
+                >
+                  <circle cx="12" cy="8" r="3.5" />
+                  <path d="M5 21a7 7 0 0 1 14 0" />
+                </svg>
+              </span>
+
+              <span>
+                <span class="text-gray-500"> نویسنده: </span>
+                <span class="font-semibold text-strong">{{
+                  articleAuthor
+                }}</span>
+              </span>
+
+              <div>
+                <span
+                  v-if="articleAuthor && article.created_at"
+                  class="text-gray-300 pr-1.5"
+                  aria-hidden="true"
+                >
+                  •
+                </span>
+
+                <span v-if="article.created_at">
+                  {{ formatDate(article.created_at) }}
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <span
+                v-if="readingTime"
+                class="inline-flex items-center gap-1 whitespace-nowrap"
+              >
+                <span class="text-gray-300" aria-hidden="true">•</span>
+                {{ readingTime }} دقیقه مطالعه
+              </span>
+
+              <span v-if="article.views_count" class="flex items-center gap-1">
+                <span class="text-gray-300" aria-hidden="true">•</span>
+                {{ article.views_count }} بازدید
+              </span>
+            </div>
           </div>
 
-          <!-- Summary / Short Description -->
           <p
             v-if="article.short_description || article.summary"
             class="text-sm font-normal leading-7 text-gray-600"
@@ -68,7 +118,6 @@
             {{ article.short_description || article.summary }}
           </p>
 
-          <!-- Reading Time Notification -->
           <div
             v-if="article.reading_time"
             class="inline-flex items-center gap-2 text-xs text-muted bg-gray-50 border px-3 py-1.5 rounded-lg"
@@ -97,6 +146,7 @@
         <!-- Article Body HTML -->
         <section
           v-if="articleBody"
+          ref="articleContentRef"
           class="prose prose-lg max-w-none leading-9 text-gray-800 pt-2"
           v-html="articleBody"
         ></section>
@@ -153,7 +203,7 @@
 
       <!-- Sidebar Column (5 cols) -->
       <aside
-        class="lg:col-span-5 lg:col-start-8 min-w-0 space-y-6 lg:sticky lg:top-24"
+        class="lg:col-span-5 lg:col-start-8 min-w-0 space-y-6 lg:sticky lg:top-10"
       >
         <!-- Related Articles Widget -->
         <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-4">
@@ -179,16 +229,24 @@
           <h3 class="text-lg font-bold text-strong border-b pb-3">
             فهرست مطالب
           </h3>
-          <ul class="space-y-2 text-sm text-muted">
-            <li v-for="(heading, idx) in tableOfContents" :key="idx">
+          <ul
+            v-if="tableOfContents.length > 0"
+            class="space-y-2 text-sm text-muted"
+          >
+            <li v-for="heading in tableOfContents" :key="heading.id">
               <a
-                href="#"
+                :href="`#${heading.id}`"
                 class="hover:text-strong transition block py-1 border-b border-dashed border-gray-100 pb-2"
+                @click.prevent="scrollToHeading(heading.id)"
               >
-                {{ heading }}
+                {{ heading.title }}
               </a>
             </li>
           </ul>
+
+          <p v-else class="text-xs text-muted text-center py-2">
+            فهرستی برای این مقاله یافت نشد
+          </p>
         </div>
       </aside>
     </div>
@@ -201,7 +259,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch, nextTick, onMounted } from "vue";
 import { useApi } from "@/composables/api/useApi";
 import { useSettingStore } from "~/store/settings";
 import { storeToRefs } from "pinia";
@@ -209,63 +267,53 @@ import { toast } from "vue3-toastify";
 
 const route = useRoute();
 const { $getImageUrl } = useNuxtApp();
-const { getBlogDetail, getBlogs } = useApi();
+const { getBlogs } = useApi();
 
 const settingStore = useSettingStore();
 const { settings } = storeToRefs(settingStore);
 
-// ذخیره لیست مقالات برای استفاده در سایدبار مقالات مرتبط
 const allArticlesList = ref([]);
-
 const {
   pending,
   error,
   data: article,
   refresh,
 } = await useAsyncData(`blog-${route.params.id}`, async () => {
-  const param = route.params.id;
+  const param = String(route.params.id);
 
-  // ۱. دریافت همزمان جزئیات مقاله و مقالات لیست برای سایدبار
   try {
-    const [detailRes, listRes] = await Promise.allSettled([
-      getBlogDetail(param),
-      getBlogs({ page: 1 }),
-    ]);
+    const listRes = await getBlogs({ page: 1 });
 
-    if (listRes.status === "fulfilled") {
-      const rawList =
-        listRes.value?.data?.data || listRes.value?.data || listRes.value || [];
-      allArticlesList.value = Array.isArray(rawList) ? rawList : [];
-    }
+    const rawList = Array.isArray(listRes?.data?.data)
+      ? listRes.data.data
+      : Array.isArray(listRes?.data)
+        ? listRes.data
+        : Array.isArray(listRes)
+          ? listRes
+          : [];
 
-    if (detailRes.status === "fulfilled") {
-      const item =
-        detailRes.value?.data?.data || detailRes.value?.data || detailRes.value;
-      if (item && !Array.isArray(item) && item.title) {
-        return item;
+    allArticlesList.value = rawList;
+
+    const matchedArticle = allArticlesList.value.find((item) => {
+      if (item.slug && String(item.slug) === param) {
+        return true;
       }
-    }
+
+      return String(item.id) === param;
+    });
+
+    return matchedArticle || null;
   } catch (e) {
-    console.error("Fetch blog error:", e);
+    console.error("Fetch blog list error:", e);
+    allArticlesList.value = [];
+    return null;
   }
-
-  // ۲. روش جایگزین (Fallback) در صورت ناموفق بودن getBlogDetail
-  if (allArticlesList.value.length > 0) {
-    const matched = allArticlesList.value.find(
-      (a) => String(a.id) === String(param) || String(a.slug) === String(param),
-    );
-    if (matched) return matched;
-  }
-
-  return null;
 });
 
-// بدنه مقاله (هماهنگ با کلیدهای description و content)
 const articleBody = computed(() => {
   return article.value?.description || article.value?.content || "";
 });
 
-// نویسنده مقاله با پوشش ساختارهای آبجکت و رشته
 const articleAuthor = computed(() => {
   if (!article.value?.author) return "";
   if (typeof article.value.author === "string") return article.value.author;
@@ -276,21 +324,112 @@ const articleAuthor = computed(() => {
     ""
   );
 });
+const readingTime = computed(() => {
+  return article.value?.read_time || article.value?.reading_time || null;
+});
 
-// مقالات مرتبط برای سایدبار
+const authorImageFailed = ref(false);
+
+const articleAuthorImage = computed(() => {
+  if (authorImageFailed.value) return "";
+
+  const author = article.value?.author;
+
+  if (!author || typeof author !== "object") return "";
+
+  const image =
+    author.avatar ||
+    author.image ||
+    author.photo ||
+    author.profile_image ||
+    author.profile_photo;
+
+  if (!image) return "";
+
+  return /^https?:\/\//i.test(image) ? image : $getImageUrl(image);
+});
+
+const handleAuthorImageError = () => {
+  authorImageFailed.value = true;
+};
+
 const relatedArticles = computed(() => {
-  const currentId = article.value?.id || route.params.id;
+  const currentId = article.value?.id;
+  const currentSlug = article.value?.slug || route.params.id;
+
   return allArticlesList.value
-    .filter((b) => String(b.id) !== String(currentId))
+    .filter((item) => {
+      const isSameId =
+        currentId !== undefined &&
+        currentId !== null &&
+        String(item.id) === String(currentId);
+
+      const isSameSlug =
+        item.slug && currentSlug && String(item.slug) === String(currentSlug);
+
+      return !isSameId && !isSameSlug;
+    })
     .slice(0, 4);
 });
 
-// عناوین پیش‌فرض فهرست مطالب (TOC)
-const tableOfContents = computed(() => [
-  "معرفی و نکات کلیدی اصالت کالا",
-  "بررسی جزئیات شیشه و بسته‌بندی",
-  "روش‌های مطمئن پیش از خرید عطر لوکس",
-]);
+const articleContentRef = ref(null);
+const tableOfContents = ref([]);
+
+const buildTableOfContents = async () => {
+  await nextTick();
+
+  const content = articleContentRef.value;
+
+  if (!content) {
+    tableOfContents.value = [];
+    return;
+  }
+
+  const headings = Array.from(content.querySelectorAll("h1, h2, h3, h4"));
+
+  const extractedHeadings = [];
+
+  headings.forEach((heading, index) => {
+    const title = heading.textContent?.replace(/\s+/g, " ").trim();
+
+    if (!title) return;
+
+    const id = `article-heading-${index + 1}`;
+
+    heading.id = id;
+
+    extractedHeadings.push({
+      id,
+      title,
+    });
+  });
+
+  tableOfContents.value = extractedHeadings;
+};
+
+watch(
+  articleBody,
+  async () => {
+    await buildTableOfContents();
+  },
+  {
+    flush: "post",
+  },
+);
+
+onMounted(async () => {
+  await buildTableOfContents();
+});
+
+const scrollToHeading = (id) => {
+  const heading = document.getElementById(id);
+  if (!heading) return;
+
+  heading.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+};
 
 // تابع فرمت تاریخ شمسی
 const formatDate = (dateString) => {

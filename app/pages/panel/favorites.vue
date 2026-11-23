@@ -1,5 +1,5 @@
 <template>
-  <div class="p-8 bg-gray-100 rounded-xl">
+  <div class="md:p-8 md:bg-gray-100 rounded-xl">
     <h3 class="font-bold text-xl pb-4 mb-4 border-b">علاقه مندی ها</h3>
 
     <div v-if="isLoading" class="text-center py-8">
@@ -10,7 +10,7 @@
       <p class="text-muted">هیچ محصولی در لیست علاقه‌مندی‌های شما وجود ندارد</p>
     </div>
 
-    <div v-else class="grid grid-cols-2 gap-3">
+    <div v-else class="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-3">
       <SharedProductCard
         v-for="item in wishlistItems"
         :key="item.id"

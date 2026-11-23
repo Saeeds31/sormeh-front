@@ -15,7 +15,7 @@ defineProps({
   },
   instagramLink: {
     type: String,
-    default: "https://www.instagram.com/sormeh_beauty/",
+    default: "https://www.instagram.com/sormeh.cosmetic_/?hl=en",
   },
   bannerImage: {
     type: String,
@@ -112,7 +112,7 @@ defineProps({
             </NuxtLink>
           </div>
 
-          <div class="order-1 text-right text-white flex-1 pr-40 lg:pr-96">
+          <div class="order-1 text-center text-white flex-1 pr-40">
             <h3 class="text-lg lg:text-xl font-bold tracking-tight my-2">
               {{ title }}
             </h3>

@@ -509,7 +509,7 @@ watch(isMenuOpen, (open) => {
       <transition name="slide">
         <div
           v-if="isMenuOpen && !isCategoryPage"
-          class="fixed inset-0 bg-black/40 z-[10000]"
+          class="fixed inset-0 bg-black/40 !z-50"
           @click="toggleMenu"
         >
           <div
@@ -600,7 +600,7 @@ watch(isMenuOpen, (open) => {
                 <IconPhone />
                 <div>
                   <h3 class="text-xs text-gray-500 font-normal">تلفن تماس</h3>
-                  <div class="text-sm font-medium">{{ phoneNumber }}</div>
+                  <div class="text-sm font-medium">۰۹۱۱۷۳۵۱۵۴۴</div>
                 </div>
               </div>
             </div>

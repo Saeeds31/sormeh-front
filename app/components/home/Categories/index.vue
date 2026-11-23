@@ -56,6 +56,7 @@ const sortedCategories = computed(() => {
 const mapCategory = (item, index) => {
   return {
     id: item.id,
+    slug: item.slug || "",
     title: item.title ?? "دسته‌بندی",
     description:
       item.meta_description || item.description || "محصولات این دسته را ببینید",

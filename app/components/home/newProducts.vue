@@ -97,7 +97,6 @@
 
       <div
         v-if="selectedCategoryList.length"
-        ref="scrollContainer"
         class="flex lg:hidden items-center gap-2 overflow-x-auto scrollbar-none pb-2 mb-4 scroll-smooth"
       >
         <button
@@ -120,6 +119,7 @@
         </button>
       </div>
       <MobileDoubleRowSlider
+        ref="sliderRef"
         :products="visibleProducts"
         class="block md:hidden"
         @add-to-cart="handleAddToCart"
@@ -174,7 +174,7 @@ watch(
   { immediate: true },
 );
 
-const scrollContainer = ref(null);
+const sliderRef = ref(null);
 const isMobile = ref(false);
 
 const visibleProducts = computed(() => {
@@ -188,23 +188,12 @@ const visibleProducts = computed(() => {
 const setActive = (value) => {
   activeCategory.value = value;
 };
-
 const scrollLeft = () => {
-  if (scrollContainer.value) {
-    scrollContainer.value.scrollBy({
-      left: -180,
-      behavior: "smooth",
-    });
-  }
+  sliderRef.value?.scrollProductsLeft?.();
 };
 
 const scrollRight = () => {
-  if (scrollContainer.value) {
-    scrollContainer.value.scrollBy({
-      left: 180,
-      behavior: "smooth",
-    });
-  }
+  sliderRef.value?.scrollProductsRight?.();
 };
 
 const checkMobile = () => {

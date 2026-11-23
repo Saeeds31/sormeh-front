@@ -1,7 +1,7 @@
 <!-- app/components/home/Categories/Card.vue -->
 <template>
   <NuxtLink
-    :to="item.id == 0 ? '/products' : `/products?category_ids=${item.id}`"
+    :to="item.slug ? `/products?category=${item.slug}` : '/products'"
     class="relative group cursor-pointer block pb-6 pt-2 min-w-0"
   >
     <div

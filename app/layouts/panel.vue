@@ -143,7 +143,7 @@ watch(
       <main class="min-w-0 space-y-6 lg:col-span-3">
         <div
           dir="rtl"
-          class="grid min-h-12 grid-cols-[44px_minmax(0,1fr)_44px] items-center border-b border-gray-200 bg-white px-2 lg:hidden"
+          class="grid min-h-12 grid-cols-[44px_minmax(0,1fr)_44px] items-center border-b border-gray-200 bg-white md:px-2 lg:hidden"
         >
           <button
             type="button"

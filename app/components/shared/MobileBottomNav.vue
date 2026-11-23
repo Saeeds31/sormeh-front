@@ -18,7 +18,7 @@
           :class="{ '!text-[#4b3073]': isActive(item) || isPanelRoute }"
           :aria-expanded="profileMenuOpen"
           :aria-controls="profileMenuOpen ? 'mobile-profile-menu' : undefined"
-          @click="emit('open-profile-menu')"
+          @click="handleProfileClick"
         >
           <span
             class="flex h-[25px] w-[25px] items-center justify-center"
@@ -144,6 +144,7 @@
 <script setup>
 import { computed } from "vue";
 import { useRoute } from "vue-router";
+import { useAuth } from "~/composables/useAuth";
 
 defineProps({
   panel: Boolean,
@@ -151,6 +152,19 @@ defineProps({
 });
 
 const emit = defineEmits(["open-profile-menu", "navigate"]);
+
+const { openModal } = useAuth();
+
+function handleProfileClick() {
+  const token = import.meta.client ? localStorage.getItem("auth-token") : null;
+
+  if (!token) {
+    openModal();
+    return;
+  }
+
+  emit("open-profile-menu");
+}
 
 function handleNavigate(event) {
   if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;

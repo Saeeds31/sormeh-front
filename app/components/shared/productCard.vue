@@ -126,9 +126,15 @@ onMounted(() => {
   if (fetchWishlist) fetchWishlist();
 });
 
-const productUrl = computed(() =>
-  props.product?.id ? `/product/${props.product.id}` : "#",
-);
+const productUrl = computed(() => {
+  const slug = props.product?.slug;
+
+  if (typeof slug === "string" && slug.trim()) {
+    return `/product/${slug}`;
+  }
+
+  return props.product?.id != null ? `/product/${props.product.id}` : "#";
+});
 
 const saveLocation = () => {
   if (props.saveLoc && typeof window !== "undefined") {

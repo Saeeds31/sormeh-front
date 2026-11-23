@@ -311,7 +311,7 @@ watch(showZoom, (newVal) => {
     </div>
 
     <!-- تصاویر کوچک با فلش‌های کناری -->
-    <div class="flex items-center gap-4 mt-3">
+    <div class="flex items-center gap-4 m-2">
       <!-- فلش قبلی -->
       <div @click="goNext" class="cursor-pointer flex-shrink-0 pr-2">
         <div

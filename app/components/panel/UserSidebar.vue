@@ -6,11 +6,12 @@
         class="w-16 h-16 rounded-full border-2 border-gray-300 bg-[#F4F9F1] flex items-center justify-center overflow-hidden shrink-0"
       >
         <img
-          v-if="userProfile?.avatar"
-          :src="userProfile.avatar"
+          v-if="userAvatarUrl"
+          :src="userAvatarUrl"
           class="object-cover w-full h-full"
           alt="پروفایل کاربر"
         />
+
         <User v-else class="w-8 h-8 text-gray-600" />
       </figure>
 
@@ -31,10 +32,12 @@
           class="flex items-center gap-1 text-xs font-bold text-[#533470]"
         >
           <img
-            src="/icons/coin.png"
+            v-if="clubTierIcon"
+            :src="clubTierIcon"
             alt=""
             class="h-4 w-4 shrink-0 object-contain"
           />
+
           <span>{{ formatPrice(clubPoints) }} سکه</span>
         </p>
       </div>
@@ -87,17 +90,28 @@
       </NuxtLink>
 
       <li
+        v-if="isLoggedIn"
         class="flex items-center gap-3.5 px-4 py-3 rounded-xl cursor-pointer text-red-500 hover:bg-red-50 transition-all duration-300 mt-2"
         @click="logout"
       >
         <LogOut class="w-5 h-5 text-red-500" />
         <span class="text-sm font-medium">خروج</span>
       </li>
+
+      <li
+        v-else
+        class="flex items-center gap-3.5 px-4 py-3 rounded-xl cursor-pointer text-primary hover:bg-purple-50 transition-all duration-300 mt-2 font-bold"
+        @click="openLoginModal"
+      >
+        <User class="w-5 h-5 text-primary" />
+        <span class="text-sm">ورود / ثبت‌نام</span>
+      </li>
     </ul>
   </div>
 </template>
 
 <script setup>
+import { useApiAuth, useAuth } from "@/composables/useAuth";
 import { useRoute, useRouter } from "vue-router";
 import { nextTick, ref, watch, computed, onMounted } from "vue";
 import { useApi } from "@/composables/api/useApi";
@@ -124,8 +138,18 @@ const canReadWallet =
 const route = useRoute();
 const router = useRouter();
 const { getWallet } = useApi();
-const { $api } = useNuxtApp();
+const { $api, $getImageUrl } = useNuxtApp();
 const clubPoints = ref(null);
+
+const clubTierIcon = computed(() => {
+  if (clubPoints.value === null) return "";
+
+  const points = Number(clubPoints.value);
+
+  if (points >= 1000) return "/icons/coinN.svg"; // پلاتینیوم
+  if (points >= 500) return "/icons/coin.png"; // گلد
+  return "/icons/coinB.svg"; // برنز
+});
 
 onMounted(async () => {
   if (!localStorage.getItem("auth-token")) return;
@@ -185,6 +209,14 @@ const userProfile = computed(() => {
     }
   }
   return null;
+});
+
+const userAvatarUrl = computed(() => {
+  const avatar = userProfile.value?.avatar;
+  if (!avatar) return "";
+
+  // مسیر کامل را دست‌نخورده نگه می‌داریم؛ مسیر نسبی را به URL تصویر تبدیل می‌کنیم.
+  return /^https?:\/\//i.test(avatar) ? avatar : $getImageUrl(avatar);
 });
 
 const menu = [
@@ -254,8 +286,38 @@ const handleMenuClick = (to, event) => {
 //   },
 // );
 
-const logout = () => {
-  if (props.mobileMenu) emit("navigate");
-  router.push("/");
+const { logout: apiLogout } = useApiAuth();
+const { openModal } = useAuth();
+
+const isLoggedIn = computed(() => {
+  if (import.meta.client) {
+    return Boolean(localStorage.getItem("auth-token"));
+  }
+  return false;
+});
+
+const openLoginModal = () => {
+  if (props.mobileMenu) {
+    emit("navigate");
+  }
+  openModal();
+};
+const logout = async () => {
+  if (props.mobileMenu) {
+    emit("navigate");
+  }
+
+  try {
+    await apiLogout();
+  } catch (err) {
+    console.error("Logout failed:", err);
+  } finally {
+    if (import.meta.client) {
+      localStorage.removeItem("auth-token");
+      localStorage.removeItem("user");
+    }
+
+    window.location.href = "/";
+  }
 };
 </script>

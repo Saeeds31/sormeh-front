@@ -274,20 +274,38 @@ const submitComment = () => {
             class="scroll-section pt-4 border-t border-gray-100"
           >
             <h3 class="text-base font-bold text-gray-800 text-right">نظرات</h3>
-            <productTabsComment
+            <ProductTabsComment
               :comments="comments"
               :comment-form="commentForm"
               @submit-comment="submitComment"
             />
           </div>
-
+          <!-- بخش محصولات مرتبط در موبایل -->
           <div
             id="mob-section-related"
             class="scroll-section pt-4 border-t border-gray-100"
           >
-            <h3 class="mb-4 text-base font-bold text-gray-800 text-right">
-              محصولات مرتبط
-            </h3>
+            <div class="relative mb-6 flex items-center justify-between">
+              <div class="relative z-10 bg-white pl-4">
+                <h3
+                  class="flex items-center gap-2 text-base font-bold text-gray-800 lg:text-lg"
+                >
+                  <span
+                    class="inline-block h-5 w-[2px] rounded-full bg-[#4a2e56]"
+                  />
+                  محصولات مرتبط
+                </h3>
+              </div>
+
+              <div
+                class="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-gray-200"
+              />
+
+              <div class="relative z-10 bg-white pr-4 text-[#4a2e56]">
+                <Frame />
+              </div>
+            </div>
+
             <div class="flex flex-col gap-3">
               <div
                 v-for="(product, index) in props.similarProducts"
@@ -406,6 +424,7 @@ const submitComment = () => {
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import { toast } from "vue3-toastify";
+import Frame from "~/components/icon/Frame.vue";
 
 const props = defineProps({
   specifications: Array,

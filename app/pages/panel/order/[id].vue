@@ -22,7 +22,7 @@
   <div v-else class="md:p-8 md:bg-gray-100 rounded-xl">
     <!-- Header -->
     <div class="flex gap-3 items-center mb-4 pb-4 border-b">
-      <MoveRight class="w-5 h-5" />
+      <MoveRight class="w-5 h-5 max-md:hidden" />
       <h2 class="text-lg font-bold">جزئیات سفارش</h2>
       <span
         class="mr-auto text-sm text-gray-800 py-2 px-4 bg-lime-400 rounded-lg"
@@ -211,7 +211,7 @@
       <div
         v-else-if="
           orderData.status === 'cancelled' &&
-          orderData.cardTransferReceipt?.status === 'rejected'
+          orderData.card_transfer_receipt?.status === 'rejected'
         "
       >
         <div class="flex items-center gap-3">
@@ -219,15 +219,15 @@
           <span class="font-bold text-red-700"> رسید شما رد شده است </span>
         </div>
         <p
-          v-if="orderData.cardTransferReceipt?.description"
+          v-if="orderData.card_transfer_receipt?.description"
           class="text-sm text-gray-600 mt-2"
         >
-          دلیل: {{ orderData.cardTransferReceipt.description }}
+          دلیل: {{ orderData.card_transfer_receipt.description }}
         </p>
       </div>
 
       <!-- رسید تأیید شده -->
-      <div v-else-if="orderData.cardTransferReceipt?.status === 'approved'">
+      <div v-else-if="orderData.card_transfer_receipt?.status === 'approved'">
         <div class="flex items-center gap-3">
           <IconCheck class="w-5 h-5 text-green-600" />
           <span class="font-bold text-green-700">
@@ -237,27 +237,27 @@
       </div>
     </div>
     <div
-      v-if="orderData?.cardTransferReceipt?.image_url"
+      v-if="orderData?.card_transfer_receipt?.image_url"
       class="mb-6 p-4 bg-gray-50 rounded-inner"
     >
       <h4 class="font-bold mb-2">رسید پرداخت</h4>
       <img
-        :src="$getImageUrl(orderData.cardTransferReceipt.image_url)"
+        :src="$getImageUrl(orderData.card_transfer_receipt.image_url)"
         alt="رسید پرداخت"
         class="max-w-xs max-h-48 object-contain rounded-inner border"
         @click="
           openImagePreview(
-            $getImageUrl(orderData.cardTransferReceipt.image_url),
+            $getImageUrl(orderData.card_transfer_receipt.image_url),
           )
         "
       />
       <div
-        v-if="orderData.cardTransferReceipt.tracking_code"
+        v-if="orderData.card_transfer_receipt.tracking_code"
         class="mt-2 text-sm"
       >
         <span class="text-muted">کد پیگیری:</span>
         <span class="font-medium">{{
-          orderData.cardTransferReceipt.tracking_code
+          orderData.card_transfer_receipt.tracking_code
         }}</span>
       </div>
     </div>
@@ -265,7 +265,7 @@
     <div
       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 border-b py-6"
     >
-      <div>
+      <div class="max-md:flex gap-2 items-center">
         <span class="text-muted text-sm block"> کد سفارش : </span>
         <span class="font-bold">{{ orderData?.id || "---" }}</span>
       </div>
@@ -273,15 +273,17 @@
         <span class="text-muted text-sm block">تاریخ سفارش</span>
         <span class="font-bold">{{ formatDate(orderData?.created_at) }}</span>
       </div> -->
-      <div>
+      <div class="max-md:flex gap-2 items-center">
         <span class="text-muted text-sm block">تحویل گیرنده :</span>
         <span class="font-bold">{{
           orderData?.address?.receiver_name || "---"
         }}</span>
       </div>
-      <div>
+      <div class="max-md:flex gap-2 items-center">
         <span class="text-muted text-sm block">شماره موبایل :</span>
-        <span class="font-bold">{{ orderData?.user?.mobile || "---" }}</span>
+        <span class="font-bold">{{
+          orderData?.address?.phone || orderData?.user?.mobile || "---"
+        }}</span>
       </div>
       <div class="col-span-2">
         <span class="text-muted text-sm block">آدرس :</span>
@@ -300,19 +302,19 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
+        <div class="max-md:flex gap-2 items-center">
           <span class="text-muted text-sm block">زمان تحویل :</span>
-          <span class="font-bold">{{
-            formatDate(orderData?.delivery_date) || "---"
-          }}</span>
+          <span class="font-bold">
+            {{ orderData.shipping.description }}
+          </span>
         </div>
-        <div>
+        <div class="max-md:flex gap-2 items-center">
           <span class="text-muted text-sm block">هزینه ارسال :</span>
           <span class="font-bold"
             >{{ formatPrice(orderData?.shipping?.cost) }} تومان</span
           >
         </div>
-        <div>
+        <div class="max-md:flex gap-2 items-center">
           <span class="text-muted text-sm block">روش پرداخت :</span>
           <span class="font-bold">{{
             getPaymentMethodText(orderData?.payment_method)
@@ -593,9 +595,9 @@
       </button>
       <button
         v-if="
-          orderData?.status === 'paid' ||
-          orderData?.status === 'delivered' ||
-          orderData?.status === 'reserved'
+          ['paid', 'completed', 'delivered', 'reserved'].includes(
+            orderData?.status,
+          ) || orderData?.payment_status === 'paid'
         "
         @click="printOrder"
         class="px-6 py-2 btn hover:bg-primary-dark rounded-inner transition-colors"
@@ -719,7 +721,7 @@ const formatDate = (date) => {
 const getStatusText = (status) => {
   const statusMap = {
     pending: "در انتظار پرداخت",
-    paid: "پرداخت شده",
+    paid: "تکمیل شده",
     reserved: "رزرو شده",
     completed: "تکمیل شده",
     card_transfer_pending: "در انتظار آپلود رسید",
@@ -744,6 +746,10 @@ const getStatusClass = (status) => {
     delivered: "bg-emerald-100 text-emerald-800",
     cancelled: "bg-red-100 text-red-800",
     failed: "bg-rose-100 text-rose-800",
+    completed: "bg-green-100 text-green-800",
+    card_transfer_pending: "bg-yellow-100 text-yellow-800",
+    card_transfer_review: "bg-blue-100 text-blue-800",
+    card_transfer_send_again: "bg-orange-100 text-orange-800",
   };
   return classMap[status] || "bg-gray-100 text-gray-800";
 };
@@ -797,7 +803,11 @@ const printOrder = () => {
   window.print();
 };
 const getCardTransferClass = () => {
-  if (orderData.value?.status === "card_transfer_pending") {
+  if (
+    ["card_transfer_pending", "card_transfer_send_again"].includes(
+      orderData.value?.status,
+    )
+  ) {
     return "border-yellow-300 bg-yellow-50";
   }
   if (orderData.value?.status === "card_transfer_review") {

@@ -153,6 +153,8 @@ interface ProductCategory {
 
 interface Product {
   id?: ProductId | null;
+  slug?: string | null;
+
   title?: string;
   name?: string;
   status?: string;
@@ -210,6 +212,36 @@ const emit = defineEmits<{
 }>();
 
 const sliderContainer = ref<HTMLElement | null>(null);
+const scrollProductsLeft = () => {
+  const container = sliderContainer.value;
+
+  if (!container) return;
+
+  const amount = Math.max(container.clientWidth * 0.85, 240);
+
+  container.scrollBy({
+    left: -amount,
+    behavior: "smooth",
+  });
+};
+
+const scrollProductsRight = () => {
+  const container = sliderContainer.value;
+
+  if (!container) return;
+
+  const amount = Math.max(container.clientWidth * 0.85, 240);
+
+  container.scrollBy({
+    left: amount,
+    behavior: "smooth",
+  });
+};
+
+defineExpose({
+  scrollProductsLeft,
+  scrollProductsRight,
+});
 
 const { loginModal } = useAuth();
 const { isInWishlist, toggleWishlist, fetchWishlist } = useWishlist();
@@ -231,9 +263,9 @@ const includesId = (ids: ProductId[], id: ProductId | null | undefined) => {
 };
 
 const getProductLink = (product: Product): string => {
-  return product.id !== null && product.id !== undefined
-    ? `/product/${product.id}`
-    : "#";
+  if (product.slug?.trim()) return `/product/${product.slug}`;
+
+  return product.id != null ? `/product/${product.id}` : "#";
 };
 
 const saveLocation = () => {

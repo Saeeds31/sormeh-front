@@ -165,7 +165,7 @@ const toggleWishlist = async () => {
     <div class="hidden md:flex flex-col justify-between h-full">
       <!-- بنر پرداخت -->
       <div
-        class="mb-4 flex !flex-wrap rounded-xl bg-[#BAF2FF] p-2 items-center gap-2"
+        class="mb-2 flex !flex-wrap rounded-xl bg-[#BAF2FF] p-2 items-center gap-2"
       >
         <SharedAppImage
           src="/images/snapppay.svg"
@@ -174,6 +174,18 @@ const toggleWishlist = async () => {
         />
         <div class="text-sm font-bold text-gray-800">
           خرید در ۴ قسط از اسنپ‌پی!
+        </div>
+      </div>
+      <div
+        class="mb-4 flex !flex-wrap rounded-xl bg-[#B8ED6B] p-2 items-center gap-2"
+      >
+        <SharedAppImage
+          src="/images/snapppay.svg"
+          alt="لوگو"
+          img-class="w-10 h-auto"
+        />
+        <div class="text-sm font-bold text-gray-800">
+          خرید در ۴ قسط از ترب پی!
         </div>
       </div>
 
@@ -319,11 +331,8 @@ const toggleWishlist = async () => {
       </div>
     </div>
 
-    <!-- ========================================== -->
     <!-- ۲. بخش موبایل (تعداد و مشخصات بالا، نوار فیکس پایین) -->
-    <!-- ========================================== -->
     <div class="flex md:hidden flex-col gap-5">
-      <!-- انتخاب تعداد در جریان عادی صفحه (بالای صفحه روی موبایل) -->
       <div v-if="inStock" class="space-y-2">
         <label class="block text-sm font-medium text-gray-700"> تعداد : </label>
 
@@ -419,7 +428,7 @@ const toggleWishlist = async () => {
 
     <!-- نوار ثابت پایین صفحه مخصوص موبایل (قیمت + اسنپ‌پی + دکمه خرید) -->
     <div
-      class="mobile-sticky-bar md:hidden fixed -bottom-4 right-0 left-0 z-50 flex flex-col"
+      class="mobile-sticky-bar md:hidden fixed -bottom-4 right-0 left-0 z-30 flex flex-col"
       dir="rtl"
     >
       <!-- بنر اسنپ‌پی در نوار موبایل -->
@@ -436,7 +445,6 @@ const toggleWishlist = async () => {
 
       <!-- قیمت و دکمه خرید در یک ردیف -->
       <div class="flex items-center bg-gray-100 p-3 justify-between gap-3">
-        <!-- دکمه افزودن به سبد خرید -->
         <div v-if="inStock" class="flex-1 max-w-[220px]">
           <button
             type="button"
