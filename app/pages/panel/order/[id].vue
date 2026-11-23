@@ -696,10 +696,9 @@ const formatPrice = (price) => {
   if (!price && price !== 0) return "۰";
   return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
-const bankCardNumber = ref("5894-6311-7108-1854");
-const bankAccountNumber = ref("4006051640119");
-const bankShebaNumber = ref("IR780130100000000333237675");
-const bankAccountOwner = ref("مهدیه خراسانی - بانک رفاه");
+const bankCardNumber = ref("5892-1017-8809-8685");
+const bankShebaNumber = ref("IR580150000003001842920766");
+const bankAccountOwner = ref("ادریس سرشار - بانک ملت");
 const formatDate = (date) => {
   if (!date) return "---";
   try {
