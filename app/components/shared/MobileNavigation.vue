@@ -1,9 +1,10 @@
+<!-- app/components/shared/MobileNavigation.vue -->
 <template>
   <Teleport to="#teleports">
     <div
       :class="[
         panel ? 'lg:hidden' : 'md:hidden',
-        { 'fixed inset-0 z-[45] isolate': isOpen },
+        { 'fixed inset-0 z-40 isolate': isOpen },
       ]"
     >
       <section

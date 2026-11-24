@@ -708,12 +708,12 @@ async function saveAddress() {
 <template>
   <div
     v-if="show"
-    class="fixed inset-0 p-0 md:p-6 bg-black/60 flex items-end md:items-center justify-center z-50 transition-opacity"
+    class="fixed inset-0 h-[100dvh] overflow-hidden p-0 md:p-6 bg-black/60 flex items-center justify-center z-50 transition-opacity"
     @click.self="emit('close')"
     dir="rtl"
   >
     <div
-      class="h-[100vh] md:h-auto md:max-h-[88vh] bg-white md:rounded-2xl w-full max-w-2xl flex flex-col relative overflow-hidden shadow-2xl"
+      class="h-full min-h-0 md:h-auto md:max-h-[88vh] bg-white md:rounded-2xl w-full max-w-2xl flex flex-col relative overflow-hidden shadow-2xl"
     >
       <!-- پروگرس بار بالای مودال -->
       <div
@@ -803,7 +803,9 @@ async function saveAddress() {
       </div>
 
       <!-- بدنه فرم -->
-      <div class="flex-1 overflow-y-auto px-5 py-5 custom-scroll">
+      <div
+        class="flex-1 min-h-0 overflow-y-auto px-5 py-5 custom-scroll overscroll-y-contain"
+      >
         <form
           id="addressForm"
           @submit.prevent="saveAddress"
@@ -1026,7 +1028,7 @@ async function saveAddress() {
               <!-- کد پستی -->
               <div class="flex flex-col gap-1.5">
                 <label for="postal" class="font-medium text-xs text-gray-700">
-                  کد پستی  
+                  کد پستی
                 </label>
                 <input
                   id="postal"
@@ -1471,7 +1473,6 @@ const validatePhone = () => {
 };
 
 const validatePostalCode = () => {
- 
   const postalRegex = /^\d{10}$/;
   if (!postalRegex.test(postal_code.value)) {
     errors.value.postal_code = "کد پستی باید ۱۰ رقم باشد";

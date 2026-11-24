@@ -134,7 +134,7 @@ const submitComment = () => {
     <!-- هدر تب‌ها: در موبایل استیکی، در دسکتاپ استایل کلاسیک -->
     <div
       ref="tabsHeader"
-      class="sticky top-[56px] md:static z-40 flex justify-center gap-2 bg-[#e9e3f5] px-2 pt-3 md:pt-4 pb-1.5 md:pb-20 md:rounded-xl w-full mb-6 md:mb-0 shadow-sm md:shadow-none backdrop-blur-md md:backdrop-blur-none container"
+      class="sticky top-[56px] md:static z-20 flex justify-center gap-2 bg-[#e9e3f5] px-2 pt-3 md:pt-4 pb-1.5 md:pb-20 md:rounded-xl w-full mb-6 md:mb-0 shadow-sm md:shadow-none backdrop-blur-md md:backdrop-blur-none container"
     >
       <button
         @click="handleTabClick('text')"

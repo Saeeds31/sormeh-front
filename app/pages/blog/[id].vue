@@ -1,4 +1,4 @@
-<!-- app/pages/blog/[id].vue -->
+<!-- app/pages/blog/[id].vue 5892101519878702 -->
 <template>
   <main class="container py-4">
     <SharedBreadCrumb

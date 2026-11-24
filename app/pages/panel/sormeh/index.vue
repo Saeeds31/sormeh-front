@@ -23,7 +23,7 @@
       </div>
 
       <!-- محتوای داخلی کلاب -->
-      <div class="p-4 sm:p-6 space-y-6">
+      <div class="p-4 sm:p-6 space-y-6 max-md:mt-4">
         <!-- ۲. تب‌های ناوبری کلاب -->
         <div
           class="flex items-center gap-2 overflow-x-auto pb-2 border-b border-gray-100 scrollbar-none"
@@ -379,6 +379,7 @@
     <div
       v-if="showBeautyModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      @click.self="closeBeautyModal"
     >
       <div
         class="bg-white rounded-2xl w-full max-w-lg p-6 space-y-6 relative shadow-xl"
@@ -386,8 +387,8 @@
       >
         <!-- دکمه بستن -->
         <button
-          @click="showBeautyModal = false"
-          class="absolute left-4 top-4 text-gray-400 hover:text-gray-650 cursor-pointer"
+          @click="closeBeautyModal"
+          class="absolute left-4 top-4 text-gray-400 hover:text-gray-600 cursor-pointer"
         >
           <X class="w-5 h-5" />
         </button>
@@ -397,26 +398,53 @@
         </h3>
 
         <!-- لودینگ مشخصات سیستمی -->
-        <div v-if="systemSpecsLoading" class="flex justify-center py-8">
+        <div
+          v-if="systemSpecsLoading"
+          class="flex flex-col items-center justify-center py-8 gap-2"
+        >
           <SharedLoadingSpinner size="md" />
+          <span class="text-xs text-gray-500">در حال دریافت گزینه‌ها...</span>
         </div>
 
+        <!-- پیام خطا در صورت عدم ارتباط با سرور -->
+        <div v-else-if="systemSpecsError" class="text-center py-6 space-y-3">
+          <p class="text-xs text-red-600 font-medium">{{ systemSpecsError }}</p>
+          <button
+            type="button"
+            @click="fetchSystemSpecs"
+            class="px-4 py-1.5 border border-[#533470] text-[#533470] rounded-lg text-xs font-bold hover:bg-[#533470] hover:text-white transition cursor-pointer"
+          >
+            تلاش مجدد
+          </button>
+        </div>
+
+        <!-- فرم انتخاب مشخصات -->
         <div v-else class="space-y-5">
-          <!-- فرم دو ستونی فیلدها -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div
+            v-if="systemSpecs.length === 0"
+            class="text-center py-6 text-xs text-gray-500"
+          >
+            هیچ گزینه‌ای برای نمایش یافت نشد.
+          </div>
+
+          <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div
               v-for="spec in systemSpecs"
               :key="spec.id"
               class="flex flex-col gap-1.5"
             >
-              <label class="text-xs font-bold text-gray-700"
-                >{{ spec.title }}:</label
+              <label
+                :for="`spec-${spec.id}`"
+                class="text-xs font-bold text-gray-700"
               >
+                {{ spec.title }}:
+              </label>
               <select
+                :id="`spec-${spec.id}`"
                 v-model="selectedSelections[spec.id]"
-                class="border border-gray-300 rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-[#533470] bg-white h-10"
+                class="border border-gray-300 rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-[#533470] bg-white h-10 transition-colors"
               >
-                <option value="" disabled>انتخاب کنید</option>
+                <option :value="undefined" disabled>انتخاب کنید</option>
                 <option
                   v-for="val in spec.values"
                   :key="val.id"
@@ -428,10 +456,22 @@
             </div>
           </div>
 
+          <!-- پیام خطای اعتبارسنجی یا ارسال فرم -->
+          <div
+            v-if="submitErrorMessage"
+            class="p-2.5 rounded-lg bg-red-50 text-red-600 text-xs text-center font-medium"
+          >
+            {{ submitErrorMessage }}
+          </div>
+
           <div class="pt-2">
             <button
               @click="submitBeautyProfile"
-              :disabled="submittingBeauty"
+              :disabled="
+                submittingBeauty ||
+                systemSpecsLoading ||
+                systemSpecs.length === 0
+              "
               class="w-full bg-[#533470] hover:bg-[#43275b] text-white py-3 rounded-xl font-bold text-xs transition duration-200 cursor-pointer disabled:opacity-50 shadow-sm"
             >
               {{ submittingBeauty ? "در حال ذخیره..." : "تایید" }}
@@ -494,9 +534,11 @@ const fetchProfile = async () => {
 const showBeautyModal = ref(false);
 const systemSpecs = ref([]);
 const systemSpecsLoading = ref(false);
+const systemSpecsError = ref("");
 const selectedSelections = ref({});
 const hasBeautySelections = ref(false);
 const submittingBeauty = ref(false);
+const submitErrorMessage = ref("");
 
 const fetchSummary = async () => {
   try {
@@ -533,63 +575,100 @@ const fetchUsages = async () => {
   }
 };
 
-const checkMyBeautySelections = async () => {
+const fetchSystemSpecs = async () => {
+  systemSpecsLoading.value = true;
+  systemSpecsError.value = "";
   try {
-    const response = await $api.get("/specifications/my-selections");
-    const res = response.data || response;
-
-    if (res.has_selections && Array.isArray(res.data)) {
-      hasBeautySelections.value = true;
-      res.data.forEach((item) => {
-        selectedSelections.value[item.specification_id] =
-          item.specification_value_id;
-      });
+    const res = await $api.get("/specifications/system");
+    const payload = res.data || res;
+    if (payload.success && Array.isArray(payload.data)) {
+      systemSpecs.value = payload.data;
+    } else if (Array.isArray(payload)) {
+      systemSpecs.value = payload;
+    } else {
+      systemSpecs.value = [];
     }
   } catch (e) {
-    console.error("Error fetching my-selections", e);
+    console.error("Error fetching system specifications:", e);
+    systemSpecsError.value = "عدم برقراری ارتباط با سرور برای دریافت گزینه‌ها.";
+  } finally {
+    systemSpecsLoading.value = false;
   }
 };
 
+// دریافت انتخاب‌های قبلی کاربر
+const checkMyBeautySelections = async () => {
+  try {
+    const response = await $api.get("front/specifications/my-selections");
+    const res = response.data || response;
+
+    if (res.has_selections && Array.isArray(res.data) && res.data.length > 0) {
+      hasBeautySelections.value = true;
+      const initialMap = {};
+      res.data.forEach((item) => {
+        initialMap[item.specification_id] = Number(item.specification_value_id);
+      });
+      selectedSelections.value = initialMap;
+    } else {
+      hasBeautySelections.value = false;
+    }
+  } catch (e) {
+    console.error("Error fetching my-selections:", e);
+  }
+};
+
+// باز و بسته کردن مودال
 const openBeautyModal = async () => {
+  submitErrorMessage.value = "";
   showBeautyModal.value = true;
   if (systemSpecs.value.length === 0) {
-    systemSpecsLoading.value = true;
-    try {
-      const response = await $api.get("/specifications/system");
-      const res = response.data || response;
-      systemSpecs.value = Array.isArray(res.data) ? res.data : [];
-    } catch (e) {
-      console.error("Error fetching system specifications", e);
-    } finally {
-      systemSpecsLoading.value = false;
-    }
+    await fetchSystemSpecs();
   }
 };
 
+const closeBeautyModal = () => {
+  if (submittingBeauty.value) return;
+  showBeautyModal.value = false;
+  submitErrorMessage.value = "";
+};
+
+// ثبت انتخاب‌های کاربر
 const submitBeautyProfile = async () => {
+  submitErrorMessage.value = "";
+
   const selectionsArray = Object.entries(selectedSelections.value)
-    .filter(([_, val_id]) => val_id !== undefined && val_id !== "")
+    .filter(
+      ([_, val_id]) => val_id !== undefined && val_id !== null && val_id !== "",
+    )
     .map(([spec_id, val_id]) => ({
       specification_id: Number(spec_id),
       specification_value_id: Number(val_id),
     }));
 
   if (selectionsArray.length === 0) {
-    alert("لطفاً حداقل یک مورد را انتخاب کنید.");
+    submitErrorMessage.value = "حداقل یک انتخاب الزامی است.";
     return;
   }
 
   submittingBeauty.value = true;
   try {
-    await $api.post("/specifications/user-selections", {
+    const res = await $api.post("/front/specifications/user-selections", {
       selections: selectionsArray,
     });
-    hasBeautySelections.value = true;
-    showBeautyModal.value = false;
-    await fetchSummary();
+    const resultData = res.data || res;
+
+    if (resultData.success) {
+      hasBeautySelections.value = true;
+      showBeautyModal.value = false;
+      await Promise.all([fetchSummary(), checkMyBeautySelections()]);
+    }
   } catch (e) {
-    console.error("Error submitting user selections", e);
-    alert(e.response?.data?.message || "خطا در ثبت اطلاعات");
+    console.error("Error submitting user selections:", e);
+    const backendMsg =
+      e.response?.data?.errors?.selections?.[0] ||
+      e.response?.data?.message ||
+      "خطا در ثبت اطلاعات، لطفاً مجدداً تلاش فرمایید.";
+    submitErrorMessage.value = backendMsg;
   } finally {
     submittingBeauty.value = false;
   }

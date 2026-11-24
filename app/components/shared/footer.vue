@@ -23,7 +23,7 @@
           <ul
             class="space-y-2.5 text-xs md:text-sm font-medium pr-4 list-disc marker:text-[#34244a]"
           >
-            <li v-for="cat in topCategories" :key="cat.label">
+            <li v-for="cat in topCategories" :key="cat.id">
               <NuxtLink
                 :to="cat.href"
                 class="hover:opacity-75 transition-opacity"
@@ -224,6 +224,7 @@ import { computed } from "vue";
 import { useSettingStore } from "~/store/settings.js";
 import { storeToRefs } from "pinia";
 import { useContactLinks } from "~/composables/useContactLinks";
+import { useApi } from "@/composables/api/useApi";
 
 const settingStore = useSettingStore();
 const { settings, menus } = storeToRefs(settingStore);
@@ -278,18 +279,28 @@ const featuredBrands = [
   { name: "نام (NAM)", href: "/brand/nam" },
 ];
 
-// محبوب‌ترین دسته‌بندی‌ها
-const topCategories = [
-  { label: "لوازم آرایشی بهداشتی", href: "/category/cosmetics" },
-  { label: "مراقبت پوست", href: "/category/skincare" },
-  { label: "مراقبت مو", href: "/category/haircare" },
-  { label: "عطر و ادکلن", href: "/category/perfume" },
-  { label: "لوازم برقی", href: "/category/appliances" },
-  { label: "مراقبت و زیبایی مو", href: "/category/hair-beauty" },
-  { label: "مراقبت کودک", href: "/category/baby-care" },
-  { label: "برندها", href: "/brands" },
-  { label: "باشگاه مشتریان", href: "/club" },
-];
+const { getShopFilters } = useApi();
+
+const { data: shopFiltersResponse } = await useAsyncData(
+  "footer-shop-filters",
+  () => getShopFilters(),
+  { server: true, lazy: true },
+);
+
+const topCategories = computed(() => {
+  const categories = shopFiltersResponse.value?.data?.categories;
+
+  if (!Array.isArray(categories)) return [];
+
+  return categories.map((cat) => ({
+    id: cat.id,
+    label: cat.title,
+    href: {
+      path: "/products",
+      query: { category_ids: cat.id },
+    },
+  }));
+});
 
 const contactLinks = computed(() =>
   useContactLinks(settings.value?.contact || {}),

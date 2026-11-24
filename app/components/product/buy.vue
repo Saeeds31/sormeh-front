@@ -180,7 +180,7 @@ const toggleWishlist = async () => {
         class="mb-4 flex !flex-wrap rounded-xl bg-[#B8ED6B] p-2 items-center gap-2"
       >
         <SharedAppImage
-          src="/images/snapppay.svg"
+          src="/images/torob-pay.svg"
           alt="لوگو"
           img-class="w-10 h-auto"
         />
@@ -440,6 +440,16 @@ const toggleWishlist = async () => {
         />
         <div class="text-xs font-bold text-gray-800">
           خرید در ۴ قسط از اسنپ‌پی!
+        </div>
+      </div>
+      <div class="bg-[#B8ED6B] px-3 py-2 flex items-center gap-1.5">
+        <SharedAppImage
+          src="/images/torob-pay.svg"
+          alt="لوگو"
+          img-class="w-7 h-5 h-auto"
+        />
+        <div class="text-xs font-bold text-gray-800">
+          خرید در ۴ قسط از ترب پی!
         </div>
       </div>
 

@@ -3,7 +3,7 @@
   <Transition name="overlay">
     <div
       v-if="show"
-      class="fixed inset-0 bg-black/50 z-40 transition-opacity"
+      class="fixed inset-0 bg-black/50 z-50 transition-opacity"
       @click="emit('close')"
     ></div>
   </Transition>
@@ -11,7 +11,7 @@
   <Transition name="slide">
     <div
       v-if="show"
-      class="fixed top-0 left-0 h-full w-full sm:w-[480px] bg-white z-50 shadow-2xl flex flex-col"
+      class="fixed top-0 left-0 h-full w-full sm:w-[480px] bg-white !z-50 shadow-2xl flex flex-col"
     >
       <div class="flex items-center justify-between p-4 border-b">
         <h2 class="text-lg font-bold">سبد خرید</h2>
