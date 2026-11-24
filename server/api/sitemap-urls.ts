@@ -8,7 +8,7 @@ export default defineEventHandler(async () => {
         changefreq: string;
         priority: string;
       }>;
-    }>("https://api.sismonijavid.ir/api/v1/sitemap-urls");
+    }>("https://api.sormeh-online.com/api/v1/sitemap-urls");
 
     return data?.data ?? [];
   } catch (error) {
