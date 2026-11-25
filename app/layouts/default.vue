@@ -115,6 +115,7 @@ try {
     <SharedHeader
       :product-mode="isProductPage"
       :checkout-mode="isCheckoutPage"
+      @mobile-menu-change="isMobileMenuOpen = $event"
     />
 
     <main>
@@ -140,7 +141,13 @@ try {
 
     <!-- نوبار پایین موبایل در صفحات محصول و فرایند خرید حذف می‌شود -->
     <SharedMobileNavigation
-      v-if="!isProductPage && !isCheckoutPage && !showCartSidebar"
+      v-if="
+        !isProductPage &&
+        !isCheckoutPage &&
+        !isCategoryPage &&
+        !showCartSidebar &&
+        !isMobileMenuOpen
+      "
     />
   </div>
 </template>
@@ -155,6 +162,7 @@ import { useApi } from "@/composables/api/useApi";
 const route = useRoute();
 const loadingStore = useLoadingStore();
 const categoryStore = useCategoryStore();
+const isMobileMenuOpen = ref(false);
 
 // تشخیص صفحه محصول
 const isProductPage = computed(() => /^\/product\//.test(route.path));

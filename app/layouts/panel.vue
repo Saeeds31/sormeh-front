@@ -180,20 +180,31 @@ watch(
       <SharedFooter />
     </div>
 
-    <SharedMobileNavigation ref="mobileNavigation" panel />
-
+    <SharedMobileNavigation
+      v-if="!isAnyModalOpen"
+      ref="mobileNavigation"
+      panel
+    />
     <AuthLoginModal />
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import { useLoadingStore } from "~/store/loading";
 
 const route = useRoute();
 const loadingStore = useLoadingStore();
 const mobileNavigation = ref(null);
 
+const { isAnyModalOpen, closeModal } = usePanelModal();
+watch(
+  () => route.fullPath,
+  () => {
+    closeModal();
+  },
+);
 const mobilePageTitles = {
   "/panel": "اطلاعات حساب کاربری",
   "/panel/orders": "سفارش‌های من",

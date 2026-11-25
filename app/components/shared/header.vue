@@ -566,7 +566,7 @@ watch(isMenuOpen, (open) => {
 
             <div class="flex-1 overflow-y-auto overscroll-contain">
               <div v-show="activeTabMenu === 'menu'" class="p-4">
-                <HeaderMenu :menuToggleFunction="toggleMenu" />
+                <HeaderMenu :menu-toggle-function="toggleMenu" mobile />
               </div>
 
               <div v-show="activeTabMenu === 'categories'" class="p-4">
@@ -627,6 +627,8 @@ import { storeToRefs } from "pinia";
 import { useSettingStore } from "~/store/settings";
 import { useCategoryStore } from "~/store/menu.js";
 
+const emit = defineEmits(["mobile-menu-change"]);
+
 const props = defineProps({
   productMode: {
     type: Boolean,
@@ -660,6 +662,13 @@ const loadingCategories = ref(false);
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
 };
+watch(isMenuOpen, (open) => {
+  emit("mobile-menu-change", open);
+
+  if (!open) {
+    activeTabMenu.value = "menu";
+  }
+});
 
 const openCartSidebar = () => {
   if (typeof window === "undefined") return;
@@ -740,12 +749,6 @@ const fetchCategories = async () => {
 watch(activeTabMenu, (tab) => {
   if (tab === "categories" && categories.value.length === 0) {
     fetchCategories();
-  }
-});
-
-watch(isMenuOpen, (open) => {
-  if (!open) {
-    activeTabMenu.value = "menu";
   }
 });
 

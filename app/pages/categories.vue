@@ -70,7 +70,7 @@
     </div>
 
     <!-- بدنه دو ستونه (مشابه تصویر فیگما) -->
-    <div v-else class="flex flex-1 overflow-hidden h-[calc(100vh-120px)] pb-20">
+    <div v-else class="flex flex-1 overflow-hidden h-[calc(100vh-120px)]">
       <!-- ستون راست: منوی دسته‌های اصلی (سطح ۱) -->
       <aside
         class="w-[125px] sm:w-[145px] bg-secondary-fade overflow-y-auto border-r border-gray-100 flex flex-col"

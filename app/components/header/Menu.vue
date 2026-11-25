@@ -182,6 +182,7 @@
 
     <!-- منوی موبایل -->
     <div
+      v-if="props.mobile"
       class="md:hidden bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-800"
     >
       <ul class="px-4 py-2 space-y-1">
@@ -238,6 +239,10 @@ const props = defineProps({
   menuToggleFunction: {
     type: Function,
     default: () => {},
+  },
+  mobile: {
+    type: Boolean,
+    default: false,
   },
 });
 

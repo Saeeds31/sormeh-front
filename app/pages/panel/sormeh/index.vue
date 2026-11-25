@@ -284,14 +284,30 @@
 
                 <div class="pt-4 text-left">
                   <button
-                    @click="handleMissionAction('personal')"
+                    @click="openPersonalModal"
                     class="border border-[#533470] text-[#533470] hover:bg-[#533470] hover:text-white px-5 py-1.5 rounded-lg text-xs font-bold transition duration-200 cursor-pointer"
                   >
-                    تکمیل کنید
+                    {{
+                      isPersonalProfileComplete
+                        ? "ویرایش اطلاعات"
+                        : "تکمیل کنید"
+                    }}
                   </button>
                 </div>
               </div>
             </div>
+            <PanelBeautyProfileModal
+              :show="showBeautyModal"
+              @close="closeBeautyModal"
+              @saved="handleBeautyProfileSaved"
+            />
+
+            <PanelEditUserModal
+              :show="showPersonalModal"
+              :user-data="profileData?.user"
+              @close="closePersonalModal"
+              @save="handlePersonalSaved"
+            />
           </div>
         </div>
 
@@ -374,119 +390,15 @@
         </div>
       </div>
     </div>
-
-    <!-- مودال تکمیل پروفایل بیوتی (طراحی دو ستونی مطابق طرح) -->
-    <div
-      v-if="showBeautyModal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      @click.self="closeBeautyModal"
-    >
-      <div
-        class="bg-white rounded-2xl w-full max-w-lg p-6 space-y-6 relative shadow-xl"
-        dir="rtl"
-      >
-        <!-- دکمه بستن -->
-        <button
-          @click="closeBeautyModal"
-          class="absolute left-4 top-4 text-gray-400 hover:text-gray-600 cursor-pointer"
-        >
-          <X class="w-5 h-5" />
-        </button>
-
-        <h3 class="text-base font-bold text-gray-900 text-center">
-          تکمیل پروفایل بیوتی
-        </h3>
-
-        <!-- لودینگ مشخصات سیستمی -->
-        <div
-          v-if="systemSpecsLoading"
-          class="flex flex-col items-center justify-center py-8 gap-2"
-        >
-          <SharedLoadingSpinner size="md" />
-          <span class="text-xs text-gray-500">در حال دریافت گزینه‌ها...</span>
-        </div>
-
-        <!-- پیام خطا در صورت عدم ارتباط با سرور -->
-        <div v-else-if="systemSpecsError" class="text-center py-6 space-y-3">
-          <p class="text-xs text-red-600 font-medium">{{ systemSpecsError }}</p>
-          <button
-            type="button"
-            @click="fetchSystemSpecs"
-            class="px-4 py-1.5 border border-[#533470] text-[#533470] rounded-lg text-xs font-bold hover:bg-[#533470] hover:text-white transition cursor-pointer"
-          >
-            تلاش مجدد
-          </button>
-        </div>
-
-        <!-- فرم انتخاب مشخصات -->
-        <div v-else class="space-y-5">
-          <div
-            v-if="systemSpecs.length === 0"
-            class="text-center py-6 text-xs text-gray-500"
-          >
-            هیچ گزینه‌ای برای نمایش یافت نشد.
-          </div>
-
-          <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div
-              v-for="spec in systemSpecs"
-              :key="spec.id"
-              class="flex flex-col gap-1.5"
-            >
-              <label
-                :for="`spec-${spec.id}`"
-                class="text-xs font-bold text-gray-700"
-              >
-                {{ spec.title }}:
-              </label>
-              <select
-                :id="`spec-${spec.id}`"
-                v-model="selectedSelections[spec.id]"
-                class="border border-gray-300 rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-[#533470] bg-white h-10 transition-colors"
-              >
-                <option :value="undefined" disabled>انتخاب کنید</option>
-                <option
-                  v-for="val in spec.values"
-                  :key="val.id"
-                  :value="val.id"
-                >
-                  {{ val.value }}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <!-- پیام خطای اعتبارسنجی یا ارسال فرم -->
-          <div
-            v-if="submitErrorMessage"
-            class="p-2.5 rounded-lg bg-red-50 text-red-600 text-xs text-center font-medium"
-          >
-            {{ submitErrorMessage }}
-          </div>
-
-          <div class="pt-2">
-            <button
-              @click="submitBeautyProfile"
-              :disabled="
-                submittingBeauty ||
-                systemSpecsLoading ||
-                systemSpecs.length === 0
-              "
-              class="w-full bg-[#533470] hover:bg-[#43275b] text-white py-3 rounded-xl font-bold text-xs transition duration-200 cursor-pointer disabled:opacity-50 shadow-sm"
-            >
-              {{ submittingBeauty ? "در حال ذخیره..." : "تایید" }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { Wallet, BarChart2, Calendar, UserCheck, X } from "lucide-vue-next";
 import { useApi } from "~/composables/api/useApi";
+import { usePanelModal } from "~/composables/usePanelModal";
+const { openModal, closeModal } = usePanelModal();
 
 definePageMeta({
   middleware: "auth",
@@ -532,13 +444,32 @@ const fetchProfile = async () => {
 
 // مودال بیوتی
 const showBeautyModal = ref(false);
-const systemSpecs = ref([]);
-const systemSpecsLoading = ref(false);
-const systemSpecsError = ref("");
-const selectedSelections = ref({});
 const hasBeautySelections = ref(false);
-const submittingBeauty = ref(false);
-const submitErrorMessage = ref("");
+
+// مودال اطلاعات شخصی
+const showPersonalModal = ref(false);
+
+const openPersonalModal = async () => {
+  if (!profileData.value?.user) {
+    await fetchProfile();
+  }
+
+  if (!profileData.value?.user) return;
+
+  showPersonalModal.value = true;
+  openModal();
+};
+
+const handlePersonalSaved = async () => {
+  // پروفایل تازه + خلاصه‌ی کلاب (برای سکه‌ی ماموریت)
+  await Promise.all([fetchProfile(), fetchSummary()]);
+};
+
+const isPersonalProfileComplete = computed(() => {
+  const u = profileData.value?.user;
+  if (!u) return false;
+  return Boolean(u.full_name && u.mobile && u.birth_date && u.national_code);
+});
 
 const fetchSummary = async () => {
   try {
@@ -575,102 +506,35 @@ const fetchUsages = async () => {
   }
 };
 
-const fetchSystemSpecs = async () => {
-  systemSpecsLoading.value = true;
-  systemSpecsError.value = "";
-  try {
-    const res = await $api.get("/specifications/system");
-    const payload = res.data || res;
-    if (payload.success && Array.isArray(payload.data)) {
-      systemSpecs.value = payload.data;
-    } else if (Array.isArray(payload)) {
-      systemSpecs.value = payload;
-    } else {
-      systemSpecs.value = [];
-    }
-  } catch (e) {
-    console.error("Error fetching system specifications:", e);
-    systemSpecsError.value = "عدم برقراری ارتباط با سرور برای دریافت گزینه‌ها.";
-  } finally {
-    systemSpecsLoading.value = false;
-  }
+const openBeautyModal = () => {
+  showBeautyModal.value = true;
+  openModal();
+};
+const closeBeautyModal = () => {
+  showBeautyModal.value = false;
+  closeModal();
 };
 
-// دریافت انتخاب‌های قبلی کاربر
+const closePersonalModal = () => {
+  showPersonalModal.value = false;
+  closeModal();
+};
+
+const handleBeautyProfileSaved = async () => {
+  hasBeautySelections.value = true;
+  await fetchSummary();
+};
+
 const checkMyBeautySelections = async () => {
   try {
-    const response = await $api.get("front/specifications/my-selections");
-    const res = response.data || response;
+    const response = await $api.get("/front/specifications/my-selections");
+    const payload = response.data || response;
 
-    if (res.has_selections && Array.isArray(res.data) && res.data.length > 0) {
-      hasBeautySelections.value = true;
-      const initialMap = {};
-      res.data.forEach((item) => {
-        initialMap[item.specification_id] = Number(item.specification_value_id);
-      });
-      selectedSelections.value = initialMap;
-    } else {
-      hasBeautySelections.value = false;
-    }
-  } catch (e) {
-    console.error("Error fetching my-selections:", e);
-  }
-};
-
-// باز و بسته کردن مودال
-const openBeautyModal = async () => {
-  submitErrorMessage.value = "";
-  showBeautyModal.value = true;
-  if (systemSpecs.value.length === 0) {
-    await fetchSystemSpecs();
-  }
-};
-
-const closeBeautyModal = () => {
-  if (submittingBeauty.value) return;
-  showBeautyModal.value = false;
-  submitErrorMessage.value = "";
-};
-
-// ثبت انتخاب‌های کاربر
-const submitBeautyProfile = async () => {
-  submitErrorMessage.value = "";
-
-  const selectionsArray = Object.entries(selectedSelections.value)
-    .filter(
-      ([_, val_id]) => val_id !== undefined && val_id !== null && val_id !== "",
-    )
-    .map(([spec_id, val_id]) => ({
-      specification_id: Number(spec_id),
-      specification_value_id: Number(val_id),
-    }));
-
-  if (selectionsArray.length === 0) {
-    submitErrorMessage.value = "حداقل یک انتخاب الزامی است.";
-    return;
-  }
-
-  submittingBeauty.value = true;
-  try {
-    const res = await $api.post("/front/specifications/user-selections", {
-      selections: selectionsArray,
-    });
-    const resultData = res.data || res;
-
-    if (resultData.success) {
-      hasBeautySelections.value = true;
-      showBeautyModal.value = false;
-      await Promise.all([fetchSummary(), checkMyBeautySelections()]);
-    }
-  } catch (e) {
-    console.error("Error submitting user selections:", e);
-    const backendMsg =
-      e.response?.data?.errors?.selections?.[0] ||
-      e.response?.data?.message ||
-      "خطا در ثبت اطلاعات، لطفاً مجدداً تلاش فرمایید.";
-    submitErrorMessage.value = backendMsg;
-  } finally {
-    submittingBeauty.value = false;
+    hasBeautySelections.value =
+      payload.has_selections === true ||
+      (Array.isArray(payload.data) && payload.data.length > 0);
+  } catch (error) {
+    console.error("Error checking beauty selections:", error);
   }
 };
 
@@ -701,12 +565,6 @@ const formatMembershipDate = (date) => {
     month: "2-digit",
     day: "2-digit",
   }).format(parsedDate);
-};
-
-const handleMissionAction = (type) => {
-  if (type === "personal") {
-    navigateTo("/panel");
-  }
 };
 
 onMounted(() => {

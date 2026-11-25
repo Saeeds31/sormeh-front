@@ -17,67 +17,82 @@
       <button
         type="button"
         class="shrink-0 rounded-lg bg-[#719b3f] px-4 py-2 text-xs text-white"
-        @click="showModal = true"
+        @click="openBeautyModal"
       >
-        تکمیل پروفایل
+        تکمیل پروفایل بیوتی
       </button>
     </div>
-    <div class="card bg-gray-50 p-8 rounded-xl">
+    <div class="card rounded-xl bg-gray-50 p-8">
       <div class="flex items-center justify-between border-b pb-5">
-        <h2 class="font-bold text-xl">اطلاعات کاربری</h2>
-        <!-- دکمه ویرایش -->
-        <div v-if="profileData">
-          <button class="btn" @click="showModal = true">ویرایش</button>
+        <h2 class="text-xl font-bold">اطلاعات کاربری</h2>
 
-          <!-- مودال -->
-          <PanelEditUserModal
-            :show="showModal"
-            :userData="profileData?.user"
-            @close="showModal = false"
-            @save="handleSave"
-          />
-        </div>
+        <!-- دکمه ویرایش اطلاعات کاربری -->
+        <button
+          v-if="profileData"
+          type="button"
+          class="btn"
+          @click="openUserModal"
+        >
+          ویرایش
+        </button>
       </div>
-      <div v-if="profilePending" class="text-center py-10">
+
+      <div v-if="profilePending" class="py-10 text-center">
         <SharedLoadingSpinner size="lg" />
       </div>
 
       <div
         v-else-if="profileData"
-        class="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm py-8"
+        class="grid grid-cols-1 gap-8 py-8 text-sm md:grid-cols-3"
       >
         <div class="flex flex-col gap-2">
           <span class="text-lg">نام و نام خانوادگی:</span>
-          <span class="text-muted">{{
-            profileData?.user?.full_name || "-"
-          }}</span>
+          <span class="text-muted">
+            {{ profileData?.user?.full_name || "-" }}
+          </span>
         </div>
 
         <div class="flex flex-col gap-2">
           <span class="text-lg">کد ملی:</span>
-          <span class="text-muted">{{
-            profileData?.user?.national_code || "-"
-          }}</span>
+          <span class="text-muted">
+            {{ profileData?.user?.national_code || "-" }}
+          </span>
         </div>
 
         <div class="flex flex-col gap-2">
-          <span class="text-lg">ایمیل:</span>
-          <span class="text-muted">{{ profileData?.user?.email || "-" }}</span>
+          <span class="text-lg">تاریخ تولد:</span>
+          <span class="text-muted">
+            {{ formatBirthDate(profileData?.user?.birth_date) }}
+          </span>
         </div>
 
         <div class="flex flex-col gap-2">
           <span class="text-lg">شماره تماس:</span>
-          <span class="text-muted">{{ profileData?.user?.mobile || "-" }}</span>
+          <span class="text-muted">
+            {{ profileData?.user?.mobile || "-" }}
+          </span>
         </div>
       </div>
     </div>
+
+    <PanelBeautyProfileModal
+      :show="showBeautyModal"
+      @close="closeBeautyModal"
+      @saved="handleBeautySaved"
+    />
+    <PanelEditUserModal
+      :show="showUserModal"
+      :user-data="profileData?.user"
+      @close="closeUserModal"
+      @save="handleSave"
+    />
   </div>
 </template>
 
 <script setup>
 import { useApi } from "@/composables/api/useApi";
 import { CoinsIcon } from "lucide-vue-next";
-
+import { usePanelModal } from "~/composables/usePanelModal";
 import { ref } from "vue";
 import Coin from "~/components/icon/Coin.vue";
 
@@ -85,6 +100,7 @@ definePageMeta({
   layout: "panel",
   middleware: "auth",
 });
+const { openModal, closeModal } = usePanelModal();
 
 const { getUserProfile } = useApi();
 
@@ -109,10 +125,67 @@ const {
   },
 );
 
-const showModal = ref(false);
+const showUserModal = ref(false);
+const showBeautyModal = ref(false);
+function openUserModal() {
+  showUserModal.value = true;
+  openModal();
+}
+
+function closeUserModal() {
+  showUserModal.value = false;
+
+  if (!showBeautyModal.value) {
+    closeModal();
+  }
+}
+
+function openBeautyModal() {
+  showBeautyModal.value = true;
+  openModal();
+}
+
+function closeBeautyModal() {
+  showBeautyModal.value = false;
+
+  if (!showUserModal.value) {
+    closeModal();
+  }
+}
+
+function handleBeautySaved() {
+  // اگر بعد از ذخیره لازم است اطلاعات کاربر هم تازه شود:
+  refreshProfile();
+}
 
 async function handleSave() {
-  // داده‌های پروفایل رو دوباره بگیر
   await refreshProfile();
 }
+
+function toEnglishDigits(value) {
+  return String(value ?? "")
+    .replace(/[۰-۹]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit))
+    .replace(/[٠-٩]/g, (digit) => "٠١٢٣٤٥٦٧٨٩".indexOf(digit));
+}
+
+function formatBirthDate(value) {
+  if (!value) return "-";
+
+  // تاریخ را به قسمت قبل از زمان محدود می‌کنیم؛ عمداً از new Date استفاده نمی‌کنیم.
+  const datePart = toEnglishDigits(String(value).trim().split("T")[0]);
+  const parts = datePart.split(/[-/]/);
+
+  if (parts.length !== 3 || parts.some((part) => !part)) {
+    return "-";
+  }
+
+  const [year, month, day] = parts;
+  return `${year}/${month}/${day}`;
+}
+
+// const formatBirthDate = (date) => {
+//   if (!date) return "-";
+//   const rawDate = date.split("T")[0];
+//   return rawDate.replaceAll("-", "/");
+// };
 </script>
