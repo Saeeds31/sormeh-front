@@ -2,27 +2,27 @@
 <template>
   <div>
     <div
-      class="mb-4 flex items-center justify-between gap-4 rounded-xl bg-[#eff9d9] px-4 pb-4"
+      class="md:mb-4 mb-2 flex items-center justify-between gap-4 rounded-xl bg-[#eff9d9] px-4 pb-4 max-md:pt-3"
     >
       <div class="text-right">
         <p class="flex items-center gap-1 text-sm font-bold">
           <span class="text-red-600">۸ سکه </span>هدیه در انتظار شماست!
-          <span><Coin class="w-5 mb-1" /></span>
+          <span><Coin class="w-5 mb-1 max-md:hidden" /></span>
         </p>
-        <p class="text-xs text-gray-600">
+        <p class="text-xs text-gray-600 max-md:pt-1">
           پروفایل خود را تکمیل کنید و سکه هدیه‌تان را دریافت کنید.
         </p>
       </div>
 
       <button
         type="button"
-        class="shrink-0 rounded-lg bg-[#719b3f] px-4 py-2 text-xs text-white"
+        class="shrink-0 rounded-lg bg-[#719b3f] px-1.5 md:px-4 py-2 text-xs text-white"
         @click="openBeautyModal"
       >
         تکمیل پروفایل بیوتی
       </button>
     </div>
-    <div class="card rounded-xl bg-gray-50 p-8">
+    <div class="card rounded-xl md:bg-gray-50 md:p-8 p-2">
       <div class="flex items-center justify-between border-b pb-5">
         <h2 class="text-xl font-bold">اطلاعات کاربری</h2>
 

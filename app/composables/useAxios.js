@@ -7,7 +7,7 @@ export default defineNuxtPlugin(() => {
 
   // فقط یک بار ساخته می‌شه (توسط Nuxt Plugin)
   const api = axios.create({
-    baseURL: config.public.apiBase || "https://api.vitamixfruit.com/api/v1",
+    baseURL: config.public.apiBase || "https://api.sormeh-online.com/api/v1",
     timeout: 10000, // بهتره بیشتر باشه
     headers: {
       "Content-Type": "application/json",

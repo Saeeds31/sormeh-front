@@ -1,6 +1,6 @@
 <!-- app/components/panel/UserSidebar.vue -->
 <template>
-  <div class="card bg-gray-100 p-6 rounded-xl text-center">
+  <div class="card md:bg-gray-100 md:p-6 rounded-xl text-center">
     <div class="w-fit mx-auto flex items-center gap-2 pb-4">
       <figure
         class="w-16 h-16 rounded-full border-2 border-gray-300 bg-[#F4F9F1] flex items-center justify-center overflow-hidden shrink-0"

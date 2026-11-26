@@ -1,7 +1,7 @@
 <template>
   <div class="border-b flex gap-4 pb-4 items-center">
     <div class="flex w-full justify-between items-center">
-      <ul class="flex gap-2 flex-wrap">
+      <ul class="flex gap-1 flex-wrap">
         <IconSort />
         مرتب سازی :
         <li
@@ -39,6 +39,7 @@ const sortOptions = [
   { label: "ارزان ترین", value: "cheapest" },
   { label: "گران ترین", value: "expensive" },
   { label: "پرفروش ترین", value: "best_selling" },
+  { label: "ترند ترین", value: "best_terend" },
 ];
 
 // پیدا کردن label فعلی بر اساس value دریافتی از والد

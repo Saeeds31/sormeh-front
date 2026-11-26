@@ -4,7 +4,7 @@
     <div
       :class="[
         panel ? 'lg:hidden' : 'md:hidden',
-        { 'fixed inset-0 z-40 isolate': isOpen },
+        { 'fixed inset-0 z-[45] isolate': isOpen },
       ]"
     >
       <section
@@ -18,7 +18,6 @@
           <h2 id="mobile-profile-menu-title" class="text-lg font-bold">
             حساب کاربری
           </h2>
-
           <button
             ref="closeButton"
             type="button"
@@ -54,6 +53,7 @@
       </section>
 
       <SharedMobileBottomNav
+        v-if="!hideBottomNav"
         :panel="panel"
         :profile-menu-open="isOpen"
         @open-profile-menu="toggle"
@@ -68,6 +68,10 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
 const props = defineProps({
   panel: Boolean,
+  hideBottomNav: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const router = useRouter();
@@ -119,7 +123,7 @@ function unlockScroll() {
 }
 
 async function open() {
-  if (!desktopQuery || desktopQuery.matches || isOpen.value) return;
+  if (desktopQuery?.matches || isOpen.value) return;
 
   opener = document.activeElement;
   isOpen.value = true;
@@ -173,7 +177,9 @@ onMounted(() => {
   window.addEventListener("keydown", handleKeydown);
 
   removeRouteHook = router.afterEach((to, from, failure) => {
-    if (!failure && to.fullPath !== from.fullPath) close();
+    if (failure || to.fullPath === from.fullPath) return;
+    close();
+    unlockScroll();
   });
 });
 
@@ -189,7 +195,6 @@ defineExpose({ open });
 
 <style scoped>
 .profile-menu {
-  /* ۷۰px ارتفاع نوبار + ۱۶px فاصله، علاوه بر فاصلهٔ نوبار از پایین */
   padding-bottom: calc(86px + max(12px, env(safe-area-inset-bottom, 0px)));
 }
 </style>

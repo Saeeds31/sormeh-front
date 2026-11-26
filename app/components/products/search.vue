@@ -1,3 +1,4 @@
+<!-- app/components/products/search.vue -->
 <template>
   <form
     @submit.prevent="onSubmit"

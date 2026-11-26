@@ -183,8 +183,10 @@ watch(
     <SharedMobileNavigation
       v-if="!isAnyModalOpen"
       ref="mobileNavigation"
+      :hide-bottom-nav="!isPanelHome"
       panel
     />
+
     <AuthLoginModal />
   </div>
 </template>
@@ -213,6 +215,13 @@ const mobilePageTitles = {
   "/panel/addresses": "لیست آدرس‌ها",
   "/panel/favorites": "علاقه‌مندی‌ها",
 };
+const normalizedPath = computed(() => route.path.replace(/\/+$/, "") || "/");
+
+const isPanelHome = computed(() => normalizedPath.value === "/panel");
+
+const isPanelInternalPage = computed(() =>
+  normalizedPath.value.startsWith("/panel/"),
+);
 
 const mobilePageTitle = computed(() => {
   const path = route.path.replace(/\/+$/, "");

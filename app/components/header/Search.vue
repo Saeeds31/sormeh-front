@@ -1,8 +1,9 @@
 <!-- app/components/header/Search.vue -->
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, computed } from "vue";
+import { ref, onMounted, onBeforeUnmount, computed, watch } from "vue";
 import { useApi } from "~/composables/api/useApi";
 import { useCategoryStore } from "~/store/menu.js";
+const { getProducts } = useApi();
 
 const query = ref("");
 const results = ref<any[]>([]);
@@ -61,6 +62,50 @@ const handleSearch = async () => {
   }
   router.push(url);
 };
+// --- Live Suggestions (پیشنهادهای زنده هنگام تایپ) ---
+let searchTimeout: ReturnType<typeof setTimeout> | null = null;
+let requestId = 0;
+
+watch(query, (newVal) => {
+  if (searchTimeout) clearTimeout(searchTimeout);
+
+  const trimmed = newVal.trim();
+
+  if (!trimmed) {
+    results.value = [];
+    searched.value = false;
+    loading.value = false;
+    return;
+  }
+
+  loading.value = true;
+  searched.value = false;
+
+  searchTimeout = setTimeout(async () => {
+    const currentRequest = ++requestId;
+    try {
+      const params: Record<string, any> = { search: trimmed };
+      if (selectedCategory.value && selectedCategory.value.id !== 0) {
+        params.category_ids = selectedCategory.value.id;
+      }
+
+      const res = await getProducts(params);
+
+      // پاسخ پگی‌ناتور: { success, message, data: { data: [...], total, ... } }
+      if (currentRequest !== requestId) return;
+
+      results.value = res?.data?.data || [];
+      results.value = (res?.data?.data || []).slice(0, 6);
+      searched.value = true;
+    } catch (err) {
+      if (currentRequest !== requestId) return;
+      results.value = [];
+      searched.value = true;
+    } finally {
+      if (currentRequest === requestId) loading.value = false;
+    }
+  }, 350);
+});
 
 // --- بستن دراپ‌داون با کلیک بیرون ---
 const handleClickOutside = (event: MouseEvent) => {
@@ -76,6 +121,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   document.removeEventListener("click", handleClickOutside);
+  if (searchTimeout) clearTimeout(searchTimeout);
 });
 
 function offResult() {
