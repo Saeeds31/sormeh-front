@@ -118,18 +118,20 @@
               </a>
             </div>
 
-            <NuxtLink
-              to="/contact"
+            <a
+              href="https://maps.apple/p/C6~BKIi8MF~Gi5"
+              target="_blank"
+              rel="noopener noreferrer"
               class="block overflow-hidden rounded-2xl shadow-sm transition"
             >
               <div class="relative h-28 flex items-center justify-center">
-                <img
+                <SharedAppImage
                   src="/images/map-preview.svg"
-                  alt="مسیریابی فروشگاه حضوری"
+                  alt="مشاهده موقعیت فروشگاه روی نقشه"
                   class="absolute inset-0 w-full h-full object-cover"
                 />
               </div>
-            </NuxtLink>
+            </a>
           </div>
         </div>
       </div>

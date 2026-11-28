@@ -23,7 +23,7 @@
           >
             <template #title>
               <div class="flex items-center gap-1.5">
-                <img
+                <SharedAppImage
                   :src="bannerSrc"
                   alt="پیشنهاد شگفت‌انگیز"
                   class="h-10 w-10 shrink-0 object-contain bg-white p-1 rounded-lg h-12 w-12"
@@ -108,7 +108,7 @@
           class="absolute right-0 top-0 z-[1] hidden h-full w-[260px] flex-col items-center justify-between rounded-[28px] bg-[#9575cd] px-6 py-10 text-center text-white shadow-[0_10px_25px_-5px_rgba(149,117,205,0.3)] md:flex lg:w-[290px]"
         >
           <div class="mb-2 flex h-32 w-32 items-center justify-center">
-            <img
+            <SharedAppImage
               :src="bannerSrc"
               alt="پیشنهاد شگفت‌انگیز"
               class="h-full w-full object-contain drop-shadow-lg"

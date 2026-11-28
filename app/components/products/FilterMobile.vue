@@ -145,6 +145,7 @@ const sortOptions = [
   { label: "ارزان ترین", value: "cheapest", icon: BadgePercent },
   { label: "گران ترین", value: "expensive", icon: Eye },
   { label: "پرفروش ترین", value: "best_selling", icon: Flame },
+  { label: "ترند ترین", value: "is_terend" },
 ];
 
 const categoryStore = useCategoryStore();

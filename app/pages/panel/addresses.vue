@@ -48,13 +48,15 @@
             <Hash :size="18" />
             <span>کدپستی: {{ address.postal_code }}</span>
           </p>
-          <div class="flex gap-2 text-muted">
-            <User :size="18" />
-            <div class="flex gap-2 text-muted">
-              <p class="text-sm mb-1">گیرنده: {{ address.receiver_name }}</p>
-              |
-              <p class="text-sm mb-1">تلفن: {{ address.phone }}</p>
-            </div>
+          <div class="flex flex-col gap-2 text-muted md:flex-row md:gap-2">
+            <p class="text-sm mb-1 flex gap-2 items-center">
+              <User :size="18" /> گیرنده: {{ address.receiver_name }}
+            </p>
+            <span class="hidden md:inline" aria-hidden="true">|</span>
+            <p class="text-sm mb-1 flex gap-2 items-center">
+              <IconPhoneinput :size="16" class="md:hidden" /> تلفن:
+              {{ address.phone }}
+            </p>
           </div>
         </div>
         <div class="flex gap-2">
@@ -101,6 +103,7 @@ definePageMeta({
 });
 import { ref, onMounted } from "vue";
 import { toast } from "vue3-toastify";
+import Phone from "~/components/svg/phone.vue";
 
 const { addresses, loading, error, fetchAddresses, deleteAddress } =
   useAddresses();

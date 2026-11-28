@@ -204,11 +204,11 @@ const toggleWishlist = async () => {
               >
                 {{ discountPercent }}٪
               </span>
-              {{ formatPrice(oldPrice) }} تومان
+              {{ formatPrice(totalOldPrice) }} تومان
             </div>
             <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
               <span class="text-3xl font-bold text-purple-900">
-                {{ formatPrice(price) }}
+                {{ formatPrice(totalPrice) }}
               </span>
               <span class="pb-0.5 text-sm text-gray-600">تومان</span>
             </div>
@@ -257,7 +257,7 @@ const toggleWishlist = async () => {
           >
             جمع:
             <strong class="text-gray-900">
-              {{ formatPrice(Number(price) * selectedQuantity) }}
+              {{ formatPrice(totalPrice) }}
             </strong>
             تومان
           </span>
@@ -473,7 +473,7 @@ const toggleWishlist = async () => {
         <div v-if="hasPrice" class="flex flex-col">
           <div v-if="hasDiscount" class="flex items-center gap-1.5">
             <span class="text-xs text-gray-400 line-through">
-              {{ formatPrice(oldPrice) }}
+              {{ formatPrice(totalOldPrice) }}
             </span>
             <span
               class="rounded bg-red-500 px-1.5 py-0.2 text-[10px] font-bold text-white"
@@ -483,7 +483,7 @@ const toggleWishlist = async () => {
           </div>
           <div class="flex items-baseline gap-1">
             <span class="text-base font-bold text-gray-900">
-              {{ formatPrice(price) }}
+              {{ formatPrice(totalPrice) }}
             </span>
             <span class="text-xs text-gray-600">تومان</span>
           </div>
@@ -562,6 +562,10 @@ const normalizeQuantity = (value) => {
 };
 
 const selectedQuantity = ref(normalizeQuantity(props.quantity));
+const totalPrice = computed(() => Number(props.price) * selectedQuantity.value);
+const totalOldPrice = computed(
+  () => Number(props.oldPrice) * selectedQuantity.value,
+);
 
 watch(
   () => props.quantity,

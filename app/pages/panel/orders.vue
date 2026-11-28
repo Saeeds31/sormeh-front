@@ -210,14 +210,14 @@ function getStatusColor(status) {
       <div
         v-for="order in filteredOrders"
         :key="order.id"
-        class="bg-gray-200 rounded-xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.03)] flex flex-col gap-4"
+        class="bg-gray-200 rounded-xl p-2 md:p-8 shadow-[0_2px_8px_rgba(0,0,0,0.03)] flex flex-col gap-4"
       >
         <!-- هدر کارت: بج وضعیت در راست، دکمه‌های عملیات در چپ -->
         <div class="flex items-center justify-between gap-3">
           <!-- سمت راست: نشان وضعیت + رزرو -->
           <div class="flex items-center gap-2">
             <div
-              class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold border"
+              class="inline-flex items-center gap-1.5 md:px-4 px-2 py-2 rounded-lg text-xs font-semibold border"
               :class="getStatusBadgeClass(order.status)"
             >
               <component
@@ -240,24 +240,24 @@ function getStatusColor(status) {
             <button
               v-if="['pending', 'failed', 'cancelled'].includes(order.status)"
               type="button"
-              class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white text-[#523e74] border border-[#d8d3e5] hover:bg-gray-50 transition-colors shadow-sm"
+              class="md:px-4 px-2 py-1.5 rounded-lg text-xs font-medium bg-white text-[#523e74] border border-[#d8d3e5] hover:bg-gray-50 transition-colors shadow-sm"
             >
               پرداخت مجدد
             </button>
 
             <nuxt-link
               :to="`order/${order.id}`"
-              class="inline-flex items-center gap-1 btn"
+              class="inline-flex items-center gap-1 btn !py-2.5 max-md:!text-xs"
             >
+              مشاهده جزئیات
               <ChevronRight class="w-3.5 h-3.5 rotate-180" />
-              <span>مشاهده جزئیات</span>
             </nuxt-link>
           </div>
         </div>
 
         <!-- نوار سفید مشخصات سفارش (دقیقاً مثل فیگما) -->
         <div
-          class="bg-white rounded-xl py-3 px-4 flex flex-wrap items-center justify-between gap-y-2 text-xs md:text-sm text-gray-700 border border-gray-100 shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
+          class="bg-white rounded-xl py-2.5 px-4 flex flex-wrap items-center justify-between gap-y-2 text-xs md:text-sm text-gray-700 border border-gray-100 shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
         >
           <div>
             <span class="text-gray-400">کدسفارش: </span>

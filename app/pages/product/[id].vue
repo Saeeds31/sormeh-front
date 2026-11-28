@@ -137,10 +137,23 @@ const isInWishlist = computed(() => {
 
 const isCompletelyOutOfStock = computed(() => {
   const list = variants.value;
-  if (!list?.length) return true;
-  return !list.some(
-    (variant) => variant.is_available === true && variant.stock > 0,
+
+  const isAvailable = (variant) => {
+    if (!(Number(variant.stock) > 0)) return false;
+
+    const flag = variant.is_available;
+    return flag == null || [true, 1, "1", "true"].includes(flag);
+  };
+
+  // اگر رنگ یا ویژگی انتخاب شده، فقط موجودی همان تنوع ملاک است.
+  const selected = list.find(
+    (variant) => String(variant.id) === String(selectedVariantId.value),
   );
+
+  if (selected) return !isAvailable(selected);
+
+  // قبل از انتخاب، اگر حتی یک تنوع موجود باشد، محصول «موجود» است.
+  return !list.some(isAvailable);
 });
 
 const product = computed(() => {

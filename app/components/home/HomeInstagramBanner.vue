@@ -27,7 +27,7 @@ defineProps({
 <template>
   <section class="w-full container">
     <div class="block md:hidden w-full relative overflow-hidden rounded-xl">
-      <img
+      <SharedAppImage
         src="/images/instaMobail.png"
         alt="اینستاگرام سرمه"
         class="w-full h-auto block select-none pointer-events-none"

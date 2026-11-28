@@ -39,7 +39,7 @@ const sortOptions = [
   { label: "ارزان ترین", value: "cheapest" },
   { label: "گران ترین", value: "expensive" },
   { label: "پرفروش ترین", value: "best_selling" },
-  { label: "ترند ترین", value: "best_terend" },
+  { label: "ترند ترین", value: "is_terend" },
 ];
 
 // پیدا کردن label فعلی بر اساس value دریافتی از والد

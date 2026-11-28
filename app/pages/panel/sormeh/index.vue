@@ -79,13 +79,14 @@
               </div>
               <div class="flex items-center justify-end gap-2">
                 <SharedAppImage
-                  src="/icons/coinB.svg"
-                  alt="لوگو"
-                  img-class="w-6"
+                  v-if="clubTier"
+                  :src="clubTier.icon"
+                  alt=""
+                  img-class="w-6 h-6 object-contain"
                 />
 
                 <span class="text-sm font-bold text-gray-900">
-                  {{ getTierLabel(summaryData?.level) }}
+                  {{ clubTier?.label ?? "—" }}
                 </span>
               </div>
             </div>
@@ -538,16 +539,23 @@ const checkMyBeautySelections = async () => {
   }
 };
 
-const getTierLabel = (level) => {
-  switch (level) {
-    case "gold":
-      return "سطح گلد";
-    case "platinum":
-      return "سطح پلاتینیوم";
-    default:
-      return "سطح برنز";
+const clubTier = computed(() => {
+  const rawPoints = summaryData.value?.total_points;
+  if (rawPoints == null || rawPoints === "") return null;
+
+  const points = Number(rawPoints);
+  if (!Number.isFinite(points)) return null;
+
+  if (points >= 1000) {
+    return { label: "سطح پلاتینیوم", icon: "/icons/coinN.svg" };
   }
-};
+
+  if (points >= 500) {
+    return { label: "سطح گلد", icon: "/icons/coin.png" };
+  }
+
+  return { label: "سطح برنز", icon: "/icons/coinB.svg" };
+});
 
 const formatNumber = (num) => {
   if (num === null || num === undefined) return "۰";

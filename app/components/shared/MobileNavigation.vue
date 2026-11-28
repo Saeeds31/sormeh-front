@@ -23,7 +23,7 @@
             type="button"
             aria-label="بستن منوی حساب کاربری"
             class="p-2 text-gray-500 hover:text-black"
-            @click="dismiss"
+            @click="exitDashboard"
           >
             <svg
               class="h-6 w-6"
@@ -53,7 +53,7 @@
       </section>
 
       <SharedMobileBottomNav
-        v-if="!hideBottomNav"
+        v-if="!hideBottomNav && (!panel || isOpen)"
         :panel="panel"
         :profile-menu-open="isOpen"
         @open-profile-menu="toggle"
@@ -141,6 +141,16 @@ function dismiss() {
   const button = opener;
   close();
   button?.focus?.({ preventScroll: true });
+}
+async function exitDashboard() {
+  if (!props.panel) {
+    // منو روی یک صفحهٔ عادی سایت باز شده؛ همان‌جا بمان.
+    dismiss();
+    return;
+  }
+
+  // داخل پنل هستیم؛ به خانه برو، نه به صفحهٔ قبلی پنل.
+  await router.replace("/");
 }
 
 function toggle() {

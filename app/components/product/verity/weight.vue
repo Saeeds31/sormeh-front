@@ -100,9 +100,8 @@ watch(
 );
 
 const selectOption = (option) => {
-  // 🔹 فقط disabled واقعی جلوی انتخاب رو می‌گیره
-  // گزینه ناموجود قابل انتخابه چون ممکنه در ترکیب دیگه موجود باشه
-  if (props.disabled) return;
+  if (props.disabled || !option.isAvailable) return;
+
   selectedOption.value = option;
   emit("update:modelValue", option.id);
 };
@@ -112,6 +111,9 @@ const selectOption = (option) => {
   <div class="w-[80%]">
     <p v-if="label" class="text-base pr-1 font-bold text-gray-900 mb-2">
       {{ label }} :
+      <span v-if="selectedOption" class="font-normal">
+        {{ selectedOption.label }}
+      </span>
     </p>
 
     <div class="grid grid-cols-4 gap-2">
@@ -119,16 +121,17 @@ const selectOption = (option) => {
         v-for="option in normalizedOptions"
         :key="option.id"
         type="button"
+        :disabled="disabled || !option.isAvailable"
         @click="selectOption(option)"
-        class="relative cursor-pointer text-center border p-2 rounded-inner transition-colors duration-200 text-xs"
-        :class="{
-          'bg-secondary text-primery !border-black':
-            selectedOption?.id === option.id && !disabled,
-          'bg-primary text-muted border-border-light':
-            selectedOption?.id !== option.id || disabled,
-          'cursor-not-allowed opacity-50': disabled,
-          'opacity-50': !option.isAvailable && !disabled,
-        }"
+        class="relative text-center border p-2 rounded-inner transition-colors duration-200 text-xs"
+        :class="[
+          selectedOption?.id === option.id && option.isAvailable && !disabled
+            ? 'bg-secondary text-primery !border-black'
+            : 'bg-primary text-muted border-border-light',
+          disabled || !option.isAvailable
+            ? 'cursor-not-allowed opacity-60'
+            : 'cursor-pointer',
+        ]"
       >
         <span :class="{ 'line-through': !option.isAvailable }">{{
           option.label

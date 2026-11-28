@@ -2,7 +2,7 @@
 <template>
   <div
     v-if="show"
-    class="fixed inset-0 z-[100] overflow-hidden bg-slate-950/55 backdrop-blur-[2px] sm:overflow-y-auto sm:p-5"
+    class="fixed inset-0 z-[100] max-sm:h-[100dvh] overflow-hidden bg-slate-950/55 backdrop-blur-[2px] sm:overflow-y-auto sm:p-5"
     @click.self="emit('close')"
   >
     <div
@@ -41,8 +41,9 @@
           </button>
         </header>
         <form
+          id="edit-user-form"
           @submit.prevent="saveUser"
-          class="grid grid-cols-1 gap-x-5 gap-y-4 p-4 pt-5 sm:grid-cols-2 sm:p-6 lg:grid-cols-3"
+          class="grid grid-cols-1 gap-x-5 gap-y-4 p-4 pt-5 max-sm:min-h-0 max-sm:flex-1 max-sm:content-start max-sm:overflow-y-auto max-sm:overscroll-contain sm:grid-cols-2 sm:p-6 lg:grid-cols-3"
         >
           <div class="flex flex-col gap-2">
             <label for="fullName" class="text-sm font-bold text-gray-700">
@@ -145,6 +146,7 @@
         >
           <button
             type="submit"
+            form="edit-user-form"
             class="min-h-12 w-full rounded-xl btn px-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#43275b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#533470]/30 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             :disabled="loading"
           >
@@ -282,6 +284,8 @@ watch(
 const { updateUserProfile } = useApi();
 
 async function saveUser() {
+  console.info("[EditUserModal] submit");
+
   if (!name.value || !phone.value) {
     toast.error("لطفاً نام و شماره تماس را وارد کنید");
     return;

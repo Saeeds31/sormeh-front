@@ -279,13 +279,17 @@
           orderData?.address?.receiver_name || "---"
         }}</span>
       </div>
-      <div class="max-md:flex gap-2 items-center">
+      <div
+        class="max-md:flex max-md:flex-col max-md:items-start gap-2 items-center"
+      >
         <span class="text-muted text-sm block">شماره موبایل :</span>
         <span class="font-bold">{{
           orderData?.address?.phone || orderData?.user?.mobile || "---"
         }}</span>
       </div>
-      <div class="col-span-2">
+      <div
+        class="col-span-2 max-md:flex max-md:flex-col max-md:items-start gap-2"
+      >
         <span class="text-muted text-sm block">آدرس :</span>
         <span class="font-bold">{{
           orderData?.address?.address_line || "---"
@@ -348,7 +352,7 @@
         <div
           v-for="item in orderData.items"
           :key="item.id"
-          class="flex flex-col md:flex-row gap-4 p-4 bg-white rounded-inner"
+          class="flex flex-col md:flex-row gap-4 p-4 bg-white rounded-inner max-md:border-b max-md:border-gray-300"
         >
           <div class="flex-1">
             <div class="flex items-start gap-4">
@@ -449,7 +453,7 @@
             <div
               v-for="item in child.items"
               :key="item.id"
-              class="flex flex-col md:flex-row gap-4 p-3 bg-white rounded-inner"
+              class="flex flex-col md:flex-row gap-4 p-3 bg-white rounded-inner max-md:border-b max-md:border-gray-300"
             >
               <div class="flex-1">
                 <div class="flex items-start gap-4">
@@ -600,7 +604,7 @@
           ) || orderData?.payment_status === 'paid'
         "
         @click="printOrder"
-        class="px-6 py-2 btn hover:bg-primary-dark rounded-inner transition-colors"
+        class="!px-6 py-2 btn hover:bg-primary-dark rounded-inner transition-colors"
       >
         چاپ فاکتور
       </button>

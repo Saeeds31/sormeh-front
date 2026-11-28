@@ -117,7 +117,7 @@ const secondaryOptions = computed(() => {
       id: value.id,
       value: value.value,
       label: value.value,
-      isAvailable: true,
+      isAvailable: hasAnyAvailableVariant(attribute.id, value.id),
     }));
   }
 
@@ -174,28 +174,26 @@ const resolveVariant = (primaryId, secondaryId) => {
   );
 };
 
-watch(selectedPrimaryId, () => {
-  emit("update:selectedPrimaryId", selectedPrimaryId.value);
+watch(selectedPrimaryId, (primaryId) => {
+  emit("update:selectedPrimaryId", primaryId);
 
   if (!secondaryRequired.value) return;
-  if (!selectedPrimaryId.value) {
+
+  if (primaryId == null) {
     selectedSecondaryId.value = null;
     return;
   }
 
-  const allowedMap = props.nestedMap?.[selectedPrimaryId.value];
-  if (!allowedMap) {
-    selectedSecondaryId.value = null;
-    return;
-  }
+  const options = secondaryOptions.value;
+  const canKeepSelection = options.some(
+    (option) =>
+      option.isAvailable &&
+      String(option.id) === String(selectedSecondaryId.value),
+  );
 
-  const allowedIds = Object.keys(allowedMap).map(Number);
-  if (!allowedIds.includes(selectedSecondaryId.value)) {
-    // 🔹 اولین گزینه‌ای که در nestedMap هست و موجوده رو انتخاب کن
-    const firstAvailable = secondaryOptions.value.find(
-      (option) => option.isAvailable,
-    );
-    selectedSecondaryId.value = firstAvailable?.id ?? null;
+  if (!canKeepSelection) {
+    selectedSecondaryId.value =
+      options.find((option) => option.isAvailable)?.id ?? null;
   }
 });
 

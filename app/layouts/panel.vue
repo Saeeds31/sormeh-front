@@ -183,7 +183,6 @@ watch(
     <SharedMobileNavigation
       v-if="!isAnyModalOpen"
       ref="mobileNavigation"
-      :hide-bottom-nav="!isPanelHome"
       panel
     />
 
